@@ -1,23 +1,24 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { 
-  Building2, 
-  Search, 
-  PlusCircle, 
-  Heart, 
-  MessageSquare, 
-  User, 
-  ShieldCheck, 
-  LayoutDashboard, 
+import React from "react";
+import { useRouter } from "next/navigation";
+import {
+  Building2,
+  Search,
+  PlusCircle,
+  Heart,
+  MessageSquare,
+  User,
+  ShieldCheck,
+  LayoutDashboard,
   Store,
   Menu,
-  X
-} from 'lucide-react';
+  X,
+} from "lucide-react";
 
 interface NavbarProps {
-  activeView: 'marketplace' | 'seller' | 'admin';
-  setActiveView: (view: 'marketplace' | 'seller' | 'admin') => void;
+  activeView: "marketplace" | "seller" | "admin";
+  setActiveView: (view: "marketplace" | "seller" | "admin") => void;
   savedCount: number;
   onOpenListModal: () => void;
   onToggleChat: () => void;
@@ -34,20 +35,20 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleChat,
   unreadChatCount,
   searchQuery,
-  setSearchQuery
+  setSearchQuery,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const router = useRouter();
 
   return (
     // Primary Navigation Bar (#111a18)
     <header className="sticky top-0 z-40 w-full bg-[#111a18] text-white border-b border-slate-800 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 gap-4">
-          
           {/* Logo & Brand */}
           <div className="flex items-center gap-8">
-            <button 
-              onClick={() => setActiveView('marketplace')}
+            <button
+              onClick={() => setActiveView("marketplace")}
               className="flex items-center gap-3 group text-left"
             >
               {/* 10% CTA / Highlight Accent (Emerald #059669) */}
@@ -72,33 +73,36 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* View Switcher Navigation - 30% Charcoal styling with 10% Emerald Active */}
             <nav className="hidden lg:flex items-center p-1 bg-slate-800/80 rounded-xl border border-slate-700/60">
               <button
-                onClick={() => setActiveView('marketplace')}
+                onClick={() => setActiveView("marketplace")}
                 className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeView === 'marketplace'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  activeView === "marketplace"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                 }`}
               >
                 <Store className="w-3.5 h-3.5" />
                 Browse Market
               </button>
               <button
-                onClick={() => setActiveView('seller')}
+                onClick={() => setActiveView("seller")}
                 className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeView === 'seller'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  activeView === "seller"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                 }`}
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 Owner Portal
               </button>
               <button
-                onClick={() => setActiveView('admin')}
+                onClick={() => {
+                  setActiveView("admin");
+                  router.push("/app/admin");
+                }}
                 className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeView === 'admin'
-                    ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                  activeView === "admin"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
                 }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
@@ -121,7 +125,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Right Action Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
-            
             {/* 10% Call to Action (CTA) Button */}
             <button
               onClick={onOpenListModal}
@@ -132,7 +135,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {/* Saved Favorites */}
-            <button 
+            <button
               className="relative p-2.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
               title="Saved Assets"
             >
@@ -145,7 +148,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {/* Direct Messages Chat Trigger */}
-            <button 
+            <button
               onClick={onToggleChat}
               className="relative p-2.5 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-colors"
               title="Direct Messages"
@@ -170,7 +173,11 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="lg:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
@@ -190,33 +197,43 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <div className="grid grid-cols-3 gap-2 px-2">
               <button
-                onClick={() => { setActiveView('marketplace'); setMobileMenuOpen(false); }}
+                onClick={() => {
+                  setActiveView("marketplace");
+                  setMobileMenuOpen(false);
+                }}
                 className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
-                  activeView === 'marketplace'
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : 'border-slate-700 text-slate-300'
+                  activeView === "marketplace"
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-slate-700 text-slate-300"
                 }`}
               >
                 <Store className="w-4 h-4" />
                 Market
               </button>
               <button
-                onClick={() => { setActiveView('seller'); setMobileMenuOpen(false); }}
+                onClick={() => {
+                  setActiveView("seller");
+                  setMobileMenuOpen(false);
+                }}
                 className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
-                  activeView === 'seller'
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : 'border-slate-700 text-slate-300'
+                  activeView === "seller"
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-slate-700 text-slate-300"
                 }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Owner
               </button>
               <button
-                onClick={() => { setActiveView('admin'); setMobileMenuOpen(false); }}
+                onClick={() => {
+                  setActiveView("admin");
+                  setMobileMenuOpen(false);
+                  router.push("/app/admin");
+                }}
                 className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
-                  activeView === 'admin'
-                    ? 'bg-emerald-600 border-emerald-600 text-white'
-                    : 'border-slate-700 text-slate-300'
+                  activeView === "admin"
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-slate-700 text-slate-300"
                 }`}
               >
                 <ShieldCheck className="w-4 h-4" />
@@ -225,7 +242,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
         )}
-
       </div>
     </header>
   );

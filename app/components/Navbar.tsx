@@ -15,7 +15,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-
+import Link from "next/link";
 interface NavbarProps {
   activeView: "marketplace" | "seller" | "admin";
   setActiveView: (view: "marketplace" | "seller" | "admin") => void;
@@ -74,22 +74,20 @@ export const Navbar: React.FC<NavbarProps> = ({
             <nav className="hidden lg:flex items-center p-1 bg-slate-800/80 rounded-xl border border-slate-700/60">
               <button
                 onClick={() => setActiveView("marketplace")}
-                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeView === "marketplace"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${activeView === "marketplace"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                  }`}
               >
                 <Store className="w-3.5 h-3.5" />
                 Browse Market
               </button>
               <button
                 onClick={() => setActiveView("seller")}
-                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeView === "seller"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${activeView === "seller"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                  }`}
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 Owner Portal
@@ -99,11 +97,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setActiveView("admin");
                   router.push("/app/admin");
                 }}
-                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${
-                  activeView === "admin"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-700/50"
-                }`}
+                className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${activeView === "admin"
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white hover:bg-slate-700/50"
+                  }`}
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Admin Panel
@@ -163,9 +160,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* User Profile Avatar */}
             <div className="flex items-center pl-2 border-l border-slate-700">
-              <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 font-bold text-xs border border-slate-700">
-                <User className="w-4 h-4" />
-              </div>
+              <Link href="/app/account">
+                <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 font-bold text-xs border border-slate-700">
+                  <User className="w-4 h-4" />
+                </div>
+              </Link>
             </div>
 
             {/* Mobile Menu Toggle */}
@@ -201,11 +200,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setActiveView("marketplace");
                   setMobileMenuOpen(false);
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
-                  activeView === "marketplace"
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "border-slate-700 text-slate-300"
-                }`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${activeView === "marketplace"
+                  ? "bg-emerald-600 border-emerald-600 text-white"
+                  : "border-slate-700 text-slate-300"
+                  }`}
               >
                 <Store className="w-4 h-4" />
                 Market
@@ -215,11 +213,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setActiveView("seller");
                   setMobileMenuOpen(false);
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
-                  activeView === "seller"
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "border-slate-700 text-slate-300"
-                }`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${activeView === "seller"
+                  ? "bg-emerald-600 border-emerald-600 text-white"
+                  : "border-slate-700 text-slate-300"
+                  }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Owner
@@ -230,11 +227,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   router.push("/app/admin");
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
-                  activeView === "admin"
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "border-slate-700 text-slate-300"
-                }`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${activeView === "admin"
+                  ? "bg-emerald-600 border-emerald-600 text-white"
+                  : "border-slate-700 text-slate-300"
+                  }`}
               >
                 <ShieldCheck className="w-4 h-4" />
                 Admin

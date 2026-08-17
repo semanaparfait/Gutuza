@@ -56,17 +56,17 @@ export const Hero: React.FC<HeroProps> = ({
 
   return (
     // Primary #111a18 Hero Section
-    <div className="relative overflow-hidden bg-[#111a18] text-white pt-12 pb-16 border-b border-emerald-950/80">
+    <div className="relative overflow-hidden  text-white pt-12 pb-16 border-b border-emerald-950/80">
       
       {/* Background Accent Glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.15),transparent_70%)] pointer-events-none" />
+      {/* <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-[radial-gradient(circle_at_50%_0%,rgba(16,185,129,0.15),transparent_70%)] pointer-events-none" /> */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
 
         {/* Headline & Text */}
         <div className="text-center max-w-4xl mx-auto space-y-4">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+          <h1 className="hidden text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
             Unlock & Monetize <br />
             <span className="text-emerald-400">
               Every Asset Around You

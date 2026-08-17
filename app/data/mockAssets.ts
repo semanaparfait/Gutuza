@@ -30,7 +30,7 @@ export interface Asset {
 
 export const MOCK_ASSETS: Asset[] = [
   {
-    id: "gutuza-001",
+    id: "assetify-001",
     title: "Caterpillar 320 Hydraulic Excavator (20-Ton)",
     category: "Machinery",
     type: "Rent",
@@ -68,7 +68,7 @@ export const MOCK_ASSETS: Asset[] = [
     badge: "Verified Machinery"
   },
   {
-    id: "gutuza-002",
+    id: "assetify-002",
     title: "John Deere 6120M Agricultural Tractor + Implements",
     category: "Agriculture",
     type: "Rent",
@@ -105,7 +105,7 @@ export const MOCK_ASSETS: Asset[] = [
     badge: "High Demand"
   },
   {
-    id: "gutuza-003",
+    id: "assetify-003",
     title: "Commercial Cold Storage & Logistics Hub (500 SqM)",
     category: "Real Estate",
     type: "Rent",
@@ -142,7 +142,7 @@ export const MOCK_ASSETS: Asset[] = [
     badge: "Prime Location"
   },
   {
-    id: "gutuza-004",
+    id: "assetify-004",
     title: "Toyota Hilux GD-6 4x4 Double Cab Utility Truck",
     category: "Vehicles",
     type: "Rent",
@@ -178,7 +178,7 @@ export const MOCK_ASSETS: Asset[] = [
     featured: false
   },
   {
-    id: "gutuza-005",
+    id: "assetify-005",
     title: "Cummins 150 kVA Silent Industrial Generator",
     category: "Energy",
     type: "Rent",
@@ -212,7 +212,7 @@ export const MOCK_ASSETS: Asset[] = [
     featured: false
   },
   {
-    id: "gutuza-006",
+    id: "assetify-006",
     title: "Professional Drone Surveying & Mapping Service",
     category: "Services",
     type: "Service",
@@ -249,7 +249,7 @@ export const MOCK_ASSETS: Asset[] = [
     badge: "Top Rated Service"
   },
   {
-    id: "gutuza-007",
+    id: "assetify-007",
     title: "Scaffolding & Structural Formwork Package (1000 SqM)",
     category: "Tools",
     type: "Rent",
@@ -282,7 +282,7 @@ export const MOCK_ASSETS: Asset[] = [
     featured: false
   },
   {
-    id: "gutuza-008",
+    id: "assetify-008",
     title: "Solar Powered Irrigation Pump System (5 HP)",
     category: "Agriculture",
     type: "Sale",

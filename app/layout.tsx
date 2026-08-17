@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gutuza | Digital Asset Marketplace",
+  title: "Assetify | Digital Asset Marketplace",
   description: "Connect asset owners with buyers, renters, and service seekers across Africa. Showcase, sell, rent, or offer underutilized heavy equipment, vehicles, land, and tools.",
-  keywords: ["asset marketplace", "equipment rental", "Gutuza", "Africa digital marketplace", "machinery rental", "vehicle rental"],
+  keywords: ["asset marketplace", "equipment rental", "Assetify", "Africa digital marketplace", "machinery rental", "vehicle rental"],
 };
 
 export default function RootLayout({

@@ -49,7 +49,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
         {
           id: Date.now() + 1,
           sender: targetOwner || 'Jean-Paul Habimana',
-          text: `Got it! I can deliver the equipment directly to your site with a certified operator. Feel free to place the booking request on Gutuza to lock in the dates.`,
+          text: `Got it! I can deliver the equipment directly to your site with a certified operator. Feel free to place the booking request on Assetify to lock in the dates.`,
           time: '10:17 AM',
           isMe: false
         }

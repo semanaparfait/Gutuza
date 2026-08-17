@@ -38,7 +38,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
   const basePrice = asset.price * days;
   const operatorFee = includeOperator ? 40 * days : 0;
   const insuranceFee = includeInsurance ? 25 * days : 0;
-  const serviceFee = Math.round(basePrice * 0.05); // 5% Gutuza platform fee
+  const serviceFee = Math.round(basePrice * 0.05); // 5% Assetify platform fee
   const totalPrice = basePrice + operatorFee + insuranceFee + serviceFee;
 
   const handleConfirm = (e: React.FormEvent) => {
@@ -140,7 +140,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   <div>
-                    <div className="text-xs font-semibold text-slate-900 dark:text-white">Gutuza Damage Insurance</div>
+                    <div className="text-xs font-semibold text-slate-900 dark:text-white">Assetify Damage Insurance</div>
                     <div className="text-[10px] text-slate-400">Covers equipment damage & third-party liability</div>
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 Booking Request Sent Successfully!
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Booking ref <strong>#GUTUZA-{Math.floor(100000 + Math.random() * 900000)}</strong>. Owner {asset.owner.name} has been notified and funds are securely held in Gutuza Escrow.
+                Booking ref <strong>#ASSETIFY-{Math.floor(100000 + Math.random() * 900000)}</strong>. Owner {asset.owner.name} has been notified and funds are securely held in Assetify Escrow.
               </p>
             </div>
 

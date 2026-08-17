@@ -42,7 +42,7 @@ export default function Home() {
   const [maxPrice, setMaxPrice] = React.useState<number>(3000);
 
   // Modals & Drawers State
-  const [savedAssetIds, setSavedAssetIds] = React.useState<string[]>(['gutuza-001']);
+  const [savedAssetIds, setSavedAssetIds] = React.useState<string[]>(['assetify-001']);
   const [selectedAssetForDetail, setSelectedAssetForDetail] = React.useState<Asset | null>(null);
   const [selectedAssetForBooking, setSelectedAssetForBooking] = React.useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = React.useState<boolean>(false);
@@ -335,11 +335,11 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center text-white font-bold">
-                  <Building2 className="w-5 h-5" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-800/80 border border-slate-700/80 flex items-center justify-center p-0.5 shadow-md">
+                  <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
                 </div>
-                <span className="text-xl font-black text-white">Gutuza</span>
+                <span className="text-xl font-black text-white">Assetify</span>
               </div>
               <p className="text-slate-400 leading-relaxed">
                 Empowering individuals, farmers, and business owners across Africa to monetize underutilized machinery, land, and tools.
@@ -359,7 +359,7 @@ export default function Home() {
             <div>
               <h4 className="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Platform Guarantees</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Gutuza Bank Escrow Protection</a></li>
+                <li><a href="#" className="hover:text-emerald-400 transition-colors">Assetify Bank Escrow Protection</a></li>
                 <li><a href="#" className="hover:text-emerald-400 transition-colors">Verified Host KYC & Inspections</a></li>
                 <li><a href="#" className="hover:text-emerald-400 transition-colors">Comprehensive Asset Insurance</a></li>
                 <li><a href="#" className="hover:text-emerald-400 transition-colors">24/7 Field Operator Support</a></li>
@@ -379,14 +379,14 @@ export default function Home() {
                 </p>
                 <p className="flex items-center gap-2">
                   <Mail className="w-4 h-4 text-emerald-400" />
-                  support@gutuza.com
+                  support@assetify.com
                 </p>
               </div>
             </div>
           </div>
 
           <div className="pt-8 border-t border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-slate-500">
-            <p>© {new Date().getFullYear()} Gutuza Digital Marketplace. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Assetify Digital Marketplace. All rights reserved.</p>
             <div className="flex gap-4">
               <a href="#" className="hover:text-slate-300">Privacy Policy</a>
               <a href="#" className="hover:text-slate-300">Terms of Service</a>

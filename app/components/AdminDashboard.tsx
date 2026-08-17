@@ -46,10 +46,12 @@ export const AdminDashboard: React.FC = () => {
       {/* Admin Header */}
       <div className="p-6 bg-[#111a18] text-white rounded-3xl border border-slate-800 flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-emerald-400" />
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center p-0.5">
+              <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
+            </div>
             <h1 className="text-2xl font-black">
-              Gutuza Governance & Admin Console
+              Assetify Governance & Admin Console
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">

@@ -51,14 +51,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveView("marketplace")}
               className="flex items-center gap-3 group text-left"
             >
-              {/* 10% CTA / Highlight Accent (Emerald #059669) */}
-              <div className="w-11 h-11 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/30 group-hover:scale-105 transition-transform">
-                <Building2 className="w-6 h-6" />
+              <div className="w-11 h-11 rounded-xl overflow-hidden bg-slate-800/80 border border-slate-700/80 flex items-center justify-center p-1 shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
+                <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-extrabold tracking-tight text-white">
-                    Gutuza
+                    Assetify
                   </span>
                   <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-400 bg-emerald-950/80 rounded-full border border-emerald-500/30 uppercase">
                     Rwanda

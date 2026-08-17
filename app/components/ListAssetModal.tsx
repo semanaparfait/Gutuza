@@ -40,7 +40,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
     e.preventDefault();
 
     const created: Asset = {
-      id: `gutuza-${Date.now()}`,
+      id: `assetify-${Date.now()}`,
       title: title || 'New Equipment Asset',
       category,
       type,
@@ -56,7 +56,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
       specifications: {
         "Condition": "Excellent / Inspected",
         "Availability": "Immediate",
-        "Verification": "Gutuza Verified"
+        "Verification": "Assetify Verified"
       },
       owner: {
         name: "Current User",
@@ -85,7 +85,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 text-white border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Plus className="w-5 h-5 text-emerald-400" />
-            <h3 className="text-base font-bold">List Your Asset on Gutuza</h3>
+            <h3 className="text-base font-bold">List Your Asset on Assetify</h3>
           </div>
           <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-white rounded-full">
             <X className="w-5 h-5" />
@@ -228,7 +228,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
               className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
             >
               <Sparkles className="w-4 h-4" />
-              <span>Publish Listing to Gutuza</span>
+              <span>Publish Listing to Assetify</span>
             </button>
 
           </form>

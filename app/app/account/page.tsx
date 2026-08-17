@@ -86,7 +86,7 @@ export default function AccountPage() {
       setIsLoading(true);
       setTimeout(() => {
         setIsLoading(false);
-        setSuccessMsg('Account created successfully! Welcome to Gutuza.');
+        setSuccessMsg('Account created successfully! Welcome to Assetify.');
         setTimeout(() => {
           router.push('/');
         }, 1200);
@@ -111,11 +111,11 @@ export default function AccountPage() {
       {/* Top Header */}
       <header className="px-6 py-4 flex items-center justify-between max-w-7xl mx-auto w-full z-10">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-600/30 group-hover:scale-105 transition-transform">
-            <Building2 className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-slate-800/80 border border-slate-700/80 flex items-center justify-center p-1 shadow-md shadow-emerald-600/30 group-hover:scale-105 transition-transform">
+            <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
           </div>
           <div>
-            <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Gutuza</span>
+            <span className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Assetify</span>
             <span className="ml-2 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/80 px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase">
               Rwanda
             </span>
@@ -140,7 +140,7 @@ export default function AccountPage() {
             {/* Background Image */}
             <Image
               src="/gutuza_real_machinery_banner.png"
-              alt="Gutuza Heavy Equipment Marketplace Banner"
+              alt="Assetify Heavy Equipment Marketplace Banner"
               fill
               className="object-cover object-center"
               priority
@@ -165,11 +165,11 @@ export default function AccountPage() {
           <div className="lg:col-span-6 flex flex-col justify-center px-4 sm:px-6 py-4">
             {/* Top Logo & Title */}
             <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-600/30 mb-3">
-                <Building2 className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-2xl overflow-hidden bg-slate-800/80 border border-slate-700/80 flex items-center justify-center p-1.5 shadow-lg shadow-emerald-600/30 mb-3">
+                <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
               </div>
               <span className="text-[11px] font-black tracking-widest text-slate-400 dark:text-slate-500 uppercase">
-                GUTUZA
+                ASSETIFY
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight mt-1">
                 {isLoginMode ? 'WELCOME BACK' : 'CREATE ACCOUNT'}
@@ -333,7 +333,7 @@ export default function AccountPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setEmailOrPhone('user.google@gutuza.rw');
+                  setEmailOrPhone('user.google@assetify.com');
                   setPassword('googlepass123');
                 }}
                 className="w-full flex items-center justify-center gap-2.5 py-2.5 px-4 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 shadow-sm transition-colors"
@@ -439,7 +439,7 @@ export default function AccountPage() {
 
       {/* Footer */}
       <footer className="px-6 py-4 text-center text-xs text-slate-500 dark:text-slate-500">
-        &copy; {new Date().getFullYear()} Gutuza Digital Asset Marketplace Rwanda. All rights reserved.
+        &copy; {new Date().getFullYear()} Assetify Digital Asset Marketplace Rwanda. All rights reserved.
       </footer>
     </div>
   );

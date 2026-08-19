@@ -134,7 +134,7 @@ export default function AccountPage() {
       </header>
 
       {/* Main Grid Container */}
-      <main className="w-full max-w-7xl mx-auto px-20 py-4 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center ">
+      <main className="w-full max-w-7xl mx-auto md:px-20 px-10 py-4 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center ">
         
         {/* Left Column: Branding, Slogan, Features & 3D Podium Graphic */}
         <div className="lg:col-span-6 flex flex-col justify-between pt-4 lg:pt-0">

@@ -1,0 +1,23 @@
+<svg viewBox="0 0 380 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Assetify Logo">
+  <defs>
+    <style>
+      .white-icon { fill: #FFFFFF; }
+      .green-fill { fill: #2BB673; }
+      .logo-text-white {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 700;
+        font-size: 48px;
+        fill: #FFFFFF;
+        letter-spacing: -0.5px;
+      }
+    </style>
+  </defs>
+
+  <g transform="translate(10, 8)">
+    <path class="white-icon" d="M 38 6 L 8 78 L 26 78 L 46 28 L 53 28 L 43 6 Z" />
+    <path class="white-icon" d="M 57 6 L 86 78 L 68 78 L 50 33 L 44 33 L 52 6 Z" />
+    <path class="green-fill" d="M 26 50 L 39 63 L 80 15 C 83 11 88 12 91 15 C 94 18 94 23 90 26 L 44 78 C 42 80 38 80 35 78 L 18 60 C 15 57 15 52 18 49 C 20 46 24 46 26 50 Z" />
+  </g>
+
+  <text x="120" y="65" fill="#FFFFFF" class="logo-text-white">Assetify</text>
+</svg>

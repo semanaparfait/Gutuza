@@ -14,6 +14,7 @@ import {
   Store,
   Menu,
   X,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 interface NavbarProps {
@@ -38,12 +39,13 @@ export const Navbar: React.FC<NavbarProps> = ({
   setSearchQuery,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [selectedType, setSelectedType] = React.useState("All");
   const router = useRouter();
 
   return (
     // Primary Navigation Bar (#111a18)
-    <header className="sticky top-0 z-40 w-full bg-[#111a18] text-white border-b border-slate-800 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 w-full bg-slate-800/80 text-white border-b border-slate-800 shadow-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-700">
         <div className="flex items-center justify-between h-20 gap-4">
           {/* Logo & Brand */}
           <div className="flex items-center gap-8">
@@ -51,26 +53,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => setActiveView("marketplace")}
               className="flex items-center gap-3 group text-left"
             >
-              <div className="w-11 h-11 rounded-xl overflow-hidden bg-slate-800/80 border border-slate-700/80 flex items-center justify-center p-1 shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform">
-                <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-extrabold tracking-tight text-white">
-                    Assetify
-                  </span>
-                  <span className="px-2.5 py-0.5 text-[10px] font-bold tracking-wider text-emerald-400 bg-emerald-950/80 rounded-full border border-emerald-500/30 uppercase">
-                    Rwanda
-                  </span>
-                </div>
-                <p className="text-xs text-slate-400 hidden sm:block font-medium">
-                  Digital Asset Marketplace
-                </p>
+              <div className="w-32 h-32 ">
+                <img
+                  src="/Logoo.svg"
+                  alt="Assetify Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
             </button>
 
             {/* View Switcher Navigation - 30% Charcoal styling with 10% Emerald Active */}
-            <nav className="hidden lg:flex items-center p-1 bg-slate-800/80 rounded-xl border border-slate-700/60">
+            {/* <nav className="hidden lg:flex items-center p-1 bg-slate-800/80 rounded-xl border border-slate-700/60">
               <button
                 onClick={() => setActiveView("marketplace")}
                 className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${activeView === "marketplace"
@@ -104,24 +97,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Admin Panel
               </button>
-            </nav>
-          </div>
-
-          {/* Quick Header Search Bar (60% Crisp light input) */}
-          <div className="hidden md:flex flex-1 max-w-md mx-4 relative">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search tractors, excavators, cold storage..."
-              className="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl bg-white text-slate-900 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all placeholder:text-slate-400 font-medium"
-            />
+            </nav> */}
           </div>
 
           {/* Right Action Controls */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* 10% Call to Action (CTA) Button */}
+            <div className="hidden lg:flex items-center gap-6">
+              <div className="flex items-center gap-2 px-4 py-2.5">
+                <Home />
+                <p>Home</p>
+              </div>
+            </div>
             <button
               onClick={onOpenListModal}
               className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98]"
@@ -160,8 +146,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* User Profile Avatar */}
             <div className="flex items-center pl-2 border-l border-slate-700">
               <Link href="/app/account">
-                <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 font-bold text-xs border border-slate-700">
+                <div className="flex items-center gap-2  py-2.5 text-slate-300 hover:text-white hover:bg-slate-800  transition-colors">
                   <User className="w-4 h-4" />
+                  <p>Profile</p>
                 </div>
               </Link>
             </div>
@@ -199,10 +186,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setActiveView("marketplace");
                   setMobileMenuOpen(false);
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${activeView === "marketplace"
-                  ? "bg-emerald-600 border-emerald-600 text-white"
-                  : "border-slate-700 text-slate-300"
-                  }`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
+                  activeView === "marketplace"
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-slate-700 text-slate-300"
+                }`}
               >
                 <Store className="w-4 h-4" />
                 Market
@@ -212,10 +200,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setActiveView("seller");
                   setMobileMenuOpen(false);
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${activeView === "seller"
-                  ? "bg-emerald-600 border-emerald-600 text-white"
-                  : "border-slate-700 text-slate-300"
-                  }`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
+                  activeView === "seller"
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-slate-700 text-slate-300"
+                }`}
               >
                 <LayoutDashboard className="w-4 h-4" />
                 Owner
@@ -226,10 +215,11 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   router.push("/app/admin");
                 }}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${activeView === "admin"
-                  ? "bg-emerald-600 border-emerald-600 text-white"
-                  : "border-slate-700 text-slate-300"
-                  }`}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border ${
+                  activeView === "admin"
+                    ? "bg-emerald-600 border-emerald-600 text-white"
+                    : "border-slate-700 text-slate-300"
+                }`}
               >
                 <ShieldCheck className="w-4 h-4" />
                 Admin
@@ -237,6 +227,47 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
         )}
+      </div>
+      <div className="hidden lg:grid grid-cols-3 gap-4  px-4 sm:px-6 lg:px-8 py-4">
+        <div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search assets..."
+            className="w-full px-4 py-2.5 text-xs rounded-xl bg-white text-slate-900"
+          />
+        </div>
+        <div>
+          <select className="w-full px-4 py-2.5 text-xs rounded-xl bg-white text-slate-900">
+            <option value="all">Any location</option>
+            <option value="category1">kigali</option>
+            <option value="category2">gatenga</option>
+            <option value="category3">kicukiro</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-2 mb-4 px-2 border-b border-emerald-900/40 pb-3">
+          {["All", "Rent", "Sale", "Service"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setSelectedType(t)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                selectedType === t
+                  ? "bg-emerald-600 text-white shadow-sm"
+                  : "text-slate-300 hover:text-white hover:bg-emerald-950/60"
+              }`}
+            >
+              {t === "All"
+                ? "All Listings"
+                : t === "Rent"
+                  ? "For Rent"
+                  : t === "Sale"
+                    ? "For Sale"
+                    : "Services"}
+            </button>
+          ))}
+        </div>
+        
       </div>
     </header>
   );

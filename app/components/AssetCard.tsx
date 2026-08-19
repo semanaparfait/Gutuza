@@ -28,7 +28,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 }) => {
   return (
     // 60% Dominant Crisp White (#FFFFFF) Card with subtle border & shadow
-    <div className="group relative bg-white dark:bg-[#192724] rounded-2xl border border-slate-200/90 dark:border-emerald-900/40 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden">
+    <div className="group relative bg-white  rounded-2xl border border-slate-200/90 dark:border-emerald-900/40 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden">
       
       {/* Image Thumbnail */}
       <div className="relative w-full h-52 bg-slate-100 dark:bg-slate-800 overflow-hidden">
@@ -66,8 +66,8 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           }}
           className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
             isSaved 
-              ? 'bg-rose-500 text-white shadow-md' 
-              : 'bg-[#111a18]/60 text-white hover:bg-[#111a18]'
+              ? 'bg-rose-500 text-black shadow-md' 
+              : 'bg-[#111a18]/60 text-black hover:bg-[#111a18]'
           }`}
           title={isSaved ? "Saved" : "Save asset"}
         >
@@ -75,7 +75,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
         </button>
 
         {/* Price tag pill */}
-        <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-[#111a18] rounded-xl text-white flex items-baseline gap-1 shadow-md">
+        <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-[#111a18] rounded-xl text-black flex items-baseline gap-1 shadow-md">
           <span className="text-base font-black text-emerald-400">${asset.price}</span>
           <span className="text-[10px] text-slate-300">/ {asset.priceUnit}</span>
         </div>
@@ -91,7 +91,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             </span>
             <div className="flex items-center gap-1 font-semibold text-amber-500">
               <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span className="text-[#111a18] dark:text-white font-bold">{asset.rating}</span>
+              <span className="text-[#111a18] dark:text-black font-bold">{asset.rating}</span>
               <span className="text-slate-400 text-[10px]">({asset.reviewsCount})</span>
             </div>
           </div>
@@ -99,7 +99,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           {/* 30% Deep Title */}
           <h3 
             onClick={() => onSelect(asset)}
-            className="text-base font-bold text-[#111a18] dark:text-white line-clamp-2 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer transition-colors"
+            className="text-base font-bold text-[#111a18] dark:text-black line-clamp-2 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer transition-colors"
           >
             {asset.title}
           </h3>
@@ -130,7 +130,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
               className="w-7 h-7 rounded-full object-cover border border-slate-200 dark:border-emerald-900/40"
             />
             <div className="text-[11px] leading-tight">
-              <div className="flex items-center gap-1 font-bold text-[#111a18] dark:text-white truncate max-w-[100px]">
+              <div className="flex items-center gap-1 font-bold text-[#111a18] dark:text-black truncate max-w-[100px]">
                 {asset.owner.name}
                 {asset.owner.verified && (
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />

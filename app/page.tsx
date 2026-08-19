@@ -103,7 +103,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#111a18] font-sans selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-gray-200  font-sans">
 
       {/* Top Navbar */}
       <Navbar
@@ -116,6 +116,7 @@ export default function Home() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
+      
 
       {/* Main Container Views */}
       <main className="flex-1">
@@ -139,12 +140,12 @@ export default function Home() {
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
 
               {/* Filter Controls Bar */}
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-white dark:bg-[#192724] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-[#0B1B41] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
 
                 {/* Result Counter & Active Pill */}
                 <div className="flex items-center gap-3">
                   <span className="text-sm font-bold text-slate-900 dark:text-white">
-                    Showing <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{filteredAssets.length}</span> Assets Available
+                    Showing <span className="text-white  font-extrabold">{filteredAssets.length}</span> Assets Available
                   </span>
                   {selectedCategory !== 'all' && (
                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
@@ -330,16 +331,16 @@ export default function Home() {
       />
 
       {/* Professional Footer */}
-      <footer className="bg-[#111a18] text-slate-400 border-t border-slate-800 text-xs py-12">
+      <footer className="bg-[#0B1B41] text-slate-400 border-t border-slate-800 text-xs py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl overflow-hidden bg-slate-800/80 border border-slate-700/80 flex items-center justify-center p-0.5 shadow-md">
-                  <img src="/Logo.png" alt="Assetify Logo" className="w-full h-full object-contain" />
+                <div className="w-32   flex items-center justify-center p-0.5 shadow-md">
+                  <img src="/Logoo.svg" alt="Assetify Logo" className="w-full h-full object-contain" />
                 </div>
-                <span className="text-xl font-black text-white">Assetify</span>
+                
               </div>
               <p className="text-slate-400 leading-relaxed">
                 Empowering individuals, farmers, and business owners across Africa to monetize underutilized machinery, land, and tools.

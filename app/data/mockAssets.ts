@@ -1,7 +1,9 @@
 export interface Asset {
   id: string;
   title: string;
-  category: 'Machinery' | 'Vehicles' | 'Real Estate' | 'Agriculture' | 'Tools' | 'Services' | 'Energy';
+  // A built-in category name, or any free-text category a seller enters
+  // via the "Other" option when listing an asset.
+  category: string;
   type: 'Rent' | 'Sale' | 'Service';
   price: number;
   priceUnit: string;
@@ -26,6 +28,10 @@ export interface Asset {
   availability: string;
   featured: boolean;
   badge?: string;
+  // Present on assets created through the "List an Asset" flow and stored
+  // in Firestore — the uid of the seller who owns this listing. Absent on
+  // the static MOCK_ASSETS below.
+  sellerId?: string;
 }
 
 export const MOCK_ASSETS: Asset[] = [

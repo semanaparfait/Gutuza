@@ -181,7 +181,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
               Technical Specifications
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {Object.entries(asset.specifications).map(([key, val]) => (
+              {Object.entries(asset.specifications || {}).map(([key, val]) => (
                 <div key={key} className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between shadow-xs">
                   <span className="text-xs text-slate-500 font-medium">{key}</span>
                   <span className="text-xs font-bold text-[#111a18]">{val}</span>

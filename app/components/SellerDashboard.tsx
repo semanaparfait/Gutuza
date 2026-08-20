@@ -130,7 +130,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 </div>
 
                 <div className="px-2">
-                  <div className="text-xl font-extrabold text-slate-900">4</div>
+                  <div className="text-xl font-extrabold text-slate-900">{assets.length}</div>
                   <div className="text-xs font-semibold text-slate-500">Listings</div>
                 </div>
 
@@ -189,7 +189,7 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 </div>
 
                 <div className="px-4">
-                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">4</div>
+                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">{assets.length}</div>
                   <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Active Listings</div>
                 </div>
 
@@ -199,6 +199,64 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* MY LISTINGS Section — real listings this seller has published, live from Firestore */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm sm:text-base font-extrabold uppercase text-slate-800 tracking-wide">
+                  MY LISTINGS
+                </h3>
+                <span className="text-xs sm:text-sm font-semibold text-slate-500">
+                  {assets.length} {assets.length === 1 ? 'listing' : 'listings'}
+                </span>
+              </div>
+
+              {assets.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 text-center space-y-3">
+                  <p className="text-sm font-semibold text-slate-500">
+                    You haven&apos;t listed any assets yet.
+                  </p>
+                  <button
+                    onClick={onOpenListModal}
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition-all active:scale-[0.98]"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    List Your First Asset
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {assets.map((asset) => (
+                    <button
+                      key={asset.id}
+                      onClick={() => onSelectAsset?.(asset)}
+                      className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex items-center gap-4 text-left hover:border-emerald-400 hover:shadow-md transition-all group"
+                    >
+                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                        <img
+                          src={asset.image}
+                          alt={asset.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <h4 className="text-sm font-bold text-slate-900 truncate">{asset.title}</h4>
+                        <div className="flex items-center gap-2 text-xs text-slate-500">
+                          <span className="font-semibold text-emerald-600 truncate">{asset.category}</span>
+                          <span>•</span>
+                          <span className="capitalize">{asset.type}</span>
+                        </div>
+                        <div className="text-xs font-bold text-slate-800">
+                          RWF {asset.price.toLocaleString()}
+                          <span className="text-slate-400 font-medium"> / {asset.priceUnit}</span>
+                        </div>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </section>
 
             {/* ACTIVE SWAPS Section */}
             <section className="space-y-4">

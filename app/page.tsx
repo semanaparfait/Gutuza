@@ -27,10 +27,21 @@ import { AssetDetailModal } from './components/AssetDetailModal';
 import { BookingModal } from './components/BookingModal';
 import { ListAssetModal } from './components/ListAssetModal';
 import { ChatDrawer } from './components/ChatDrawer';
+import { subscribeToAllAssets } from '@/lib/assetServices';
 
 export default function Home() {
-  // Main State
-  const [assets, setAssets] = React.useState<Asset[]>(MOCK_ASSETS);
+  // Main State — real listings from Firestore (published via the "List an
+  // Asset" flow) merged with the curated MOCK_ASSETS so the marketplace
+  // never looks empty for a brand new project.
+  const [liveAssets, setLiveAssets] = React.useState<Asset[]>([]);
+
+  React.useEffect(() => {
+    const unsubscribe = subscribeToAllAssets(setLiveAssets);
+    return () => unsubscribe();
+  }, []);
+
+  const assets = React.useMemo(() => [...liveAssets, ...MOCK_ASSETS], [liveAssets]);
+
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
   const [selectedType, setSelectedType] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
@@ -51,11 +62,6 @@ export default function Home() {
     setSavedAssetIds(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-  };
-
-  // Add Newly Published Asset
-  const handleAddAsset = (newAsset: Asset) => {
-    setAssets(prev => [newAsset, ...prev]);
   };
 
   // Chat Trigger
@@ -300,7 +306,6 @@ export default function Home() {
       <ListAssetModal
         isOpen={isListModalOpen}
         onClose={() => setIsListModalOpen(false)}
-        onAddAsset={handleAddAsset}
       />
 
       <ChatDrawer

@@ -52,7 +52,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
           </span>
 
           {asset.badge && (
-            <span className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#111a18]/90 text-emerald-400 backdrop-blur-md">
+            <span className="hidden px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#111a18]/90 text-emerald-400 backdrop-blur-md">
               {asset.badge}
             </span>
           )}

@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   Mail,
@@ -20,10 +19,29 @@ import {
   ArrowLeft,
   Check,
   User,
-  Building2
+  Building2,
+  Phone,
 } from 'lucide-react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  sendPasswordResetEmail,
+  updateProfile,
+} from 'firebase/auth';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { auth, db, googleProvider } from '@/lib/firebase';
 
-const AssetifyLogo = ({ className = "w-9 h-9" }: { className?: string }) => (
+const AssetifyLogo = ({ className = 'w-9 h-9' }: { className?: string }) => (
   <svg viewBox="0 0 95 85" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <path fill="#0e8345" d="M 38 6 L 8 78 L 26 78 L 46 28 L 53 28 L 43 6 Z" />
     <path fill="#0e8345" d="M 57 6 L 86 78 L 68 78 L 50 33 L 44 33 L 52 6 Z" />
@@ -36,14 +54,17 @@ export default function AccountPage() {
   const [isLoginMode, setIsLoginMode] = useState(true);
 
   // Form States
-  const [emailOrPhone, setEmailOrPhone] = useState('');
+  const [loginIdentifier, setLoginIdentifier] = useState(''); // Email or Phone for login
+  const [fullName, setFullName] = useState('');
+  const [signupEmail, setSignupEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [fullName, setFullName] = useState('');
   const [signupRole, setSignupRole] = useState<'renter' | 'owner'>('renter');
   const [agreeTerms, setAgreeTerms] = useState(false);
 
+  // Status & Feedback States
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
@@ -51,14 +72,15 @@ export default function AccountPage() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetSent, setResetSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Form Submit Handler
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
     setSuccessMsg('');
 
     if (isLoginMode) {
-      if (!emailOrPhone.trim()) {
-        setErrorMsg('Please enter your email address');
+      if (!loginIdentifier.trim()) {
+        setErrorMsg('Please enter your email address or phone number');
         return;
       }
       if (!password) {
@@ -67,20 +89,48 @@ export default function AccountPage() {
       }
 
       setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
+      try {
+        let authEmail = loginIdentifier.trim().toLowerCase();
+
+        // Check if user entered a phone number instead of an email
+        const isPhoneInput = /^[+0-9\s\-()]+$/.test(authEmail) && !authEmail.includes('@');
+        if (isPhoneInput) {
+          const cleanPhone = authEmail.replace(/[\s\-()]/g, '');
+          const usersRef = collection(db, 'users');
+          const q = query(usersRef, where('phoneNumber', '==', cleanPhone));
+          const querySnapshot = await getDocs(q);
+
+          if (querySnapshot.empty) {
+            throw new Error('No account found with this phone number.');
+          }
+          const userDocData = querySnapshot.docs[0].data();
+          authEmail = userDocData.email;
+        }
+
+        await signInWithEmailAndPassword(auth, authEmail, password);
         setSuccessMsg('Authentication successful! Redirecting...');
-        setTimeout(() => {
-          router.push('/');
-        }, 1000);
-      }, 1000);
+        setTimeout(() => router.push('/'), 800);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setErrorMsg(err.message.replace('Firebase: ', ''));
+        } else {
+          setErrorMsg('Failed to sign in. Please check your credentials.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
     } else {
+      // Sign-Up Mode Validations
       if (!fullName.trim()) {
         setErrorMsg('Please enter your full name');
         return;
       }
-      if (!emailOrPhone.trim()) {
-        setErrorMsg('Please enter your email address');
+      if (!signupEmail.trim() || !signupEmail.includes('@')) {
+        setErrorMsg('Please enter a valid email address');
+        return;
+      }
+      if (!phoneNumber.trim()) {
+        setErrorMsg('Please enter your phone number');
         return;
       }
       if (password.length < 6) {
@@ -88,36 +138,113 @@ export default function AccountPage() {
         return;
       }
       if (!agreeTerms) {
-        setErrorMsg('Please accept the Terms of Service');
+        setErrorMsg('Please accept the Terms of Service & Privacy Policy');
         return;
       }
 
       setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
+      try {
+        const cleanPhone = phoneNumber.trim().replace(/[\s\-()]/g, '');
+
+        // Check if phone number is already registered in Firestore
+        const usersRef = collection(db, 'users');
+        const phoneCheck = query(usersRef, where('phoneNumber', '==', cleanPhone));
+        const phoneCheckSnap = await getDocs(phoneCheck);
+
+        if (!phoneCheckSnap.empty) {
+          throw new Error('This phone number is already registered with another account.');
+        }
+
+        // Create Firebase Auth user
+        const userCred = await createUserWithEmailAndPassword(auth, signupEmail.trim().toLowerCase(), password);
+        const user = userCred.user;
+
+        await updateProfile(user, { displayName: fullName.trim() });
+
+        // Save complete profile in Firestore
+        await setDoc(doc(db, 'users', user.uid), {
+          uid: user.uid,
+          fullName: fullName.trim(),
+          email: signupEmail.trim().toLowerCase(),
+          phoneNumber: cleanPhone,
+          role: signupRole,
+          createdAt: serverTimestamp(),
+        });
+
         setSuccessMsg('Account created successfully! Welcome to Assetify.');
-        setTimeout(() => {
-          router.push('/');
-        }, 1200);
-      }, 1000);
+        setTimeout(() => router.push('/'), 1000);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setErrorMsg(err.message.replace('Firebase: ', ''));
+        } else {
+          setErrorMsg('Failed to create account. Please try again.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleForgotPassword = (e: React.FormEvent) => {
+  // Google Sign-In Handler
+  const handleGoogleSignIn = async () => {
+    setErrorMsg('');
+    setIsLoading(true);
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      const userDocRef = doc(db, 'users', user.uid);
+      const existingDoc = await getDoc(userDocRef);
+
+      if (!existingDoc.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          fullName: user.displayName || 'Assetify Member',
+          email: user.email?.toLowerCase() || '',
+          phoneNumber: user.phoneNumber || '',
+          role: signupRole,
+          photoURL: user.photoURL || '',
+          createdAt: serverTimestamp(),
+        });
+      }
+
+      setSuccessMsg('Signed in with Google! Redirecting...');
+      setTimeout(() => router.push('/'), 800);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorMsg(err.message.replace('Firebase: ', ''));
+      } else {
+        setErrorMsg('Failed to sign in with Google.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Forgot Password Handler
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!resetEmail) return;
-    setResetSent(true);
-    setTimeout(() => {
-      setForgotModalOpen(false);
-      setResetSent(false);
-      setResetEmail('');
-      setSuccessMsg('Password reset link sent to your email!');
-    }, 1500);
+    if (!resetEmail.trim()) return;
+
+    try {
+      await sendPasswordResetEmail(auth, resetEmail.trim().toLowerCase());
+      setResetSent(true);
+      setTimeout(() => {
+        setForgotModalOpen(false);
+        setResetSent(false);
+        setResetEmail('');
+        setSuccessMsg('Password reset link sent to your email!');
+      }, 1500);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorMsg(err.message.replace('Firebase: ', ''));
+      }
+    }
   };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col justify-between font-sans selection:bg-[#0e8345] selection:text-white">
-      {/* Top Header Row with Back to Home Link */}
+      {/* Top Header */}
       <header className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group">
           <AssetifyLogo className="w-9 h-9 transition-transform group-hover:scale-105" />
@@ -133,27 +260,23 @@ export default function AccountPage() {
         </Link>
       </header>
 
-      {/* Main Grid Container */}
-      <main className="w-full max-w-7xl mx-auto md:px-20 px-10 py-4 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center ">
-        
-        {/* Left Column: Branding, Slogan, Features & 3D Podium Graphic */}
+      {/* Main Container */}
+      <main className="w-full max-w-7xl mx-auto md:px-20 px-6 py-4 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        {/* Left Column: Branding, Slogan & Features */}
         <div className="lg:col-span-6 flex flex-col justify-between pt-4 lg:pt-0">
           <div>
-            {/* Headline */}
             <h1 className="text-4xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-[1.08] mb-4">
               Find. Swap.<br />
               Rent. Sell.<br />
               <span className="text-[#0e8345]">Assetify.</span>
             </h1>
 
-            {/* Subtitle */}
-            <p className="text-slate-500 text-base  font-medium mb-10 max-w-md">
+            <p className="text-slate-500 text-base font-medium mb-10 max-w-md">
               The smartest way to swap, rent, or buy assets near you.
             </p>
 
             {/* 4 Feature Badges */}
-            <div className="flex items-center gap-8 ">
-              {/* Feature 1: Swap */}
+            <div className="flex items-center gap-8 flex-wrap sm:flex-nowrap">
               <div className="flex flex-col items-start gap-1">
                 <div className="w-12 h-12 rounded-xl bg-[#e6f4ea] text-[#0e8345] flex items-center justify-center mb-1">
                   <ArrowLeftRight className="w-5 h-5" />
@@ -162,7 +285,6 @@ export default function AccountPage() {
                 <span className="text-xs text-slate-500 leading-tight">easily</span>
               </div>
 
-              {/* Feature 2: Rent */}
               <div className="flex flex-col items-start gap-1">
                 <div className="w-12 h-12 rounded-xl bg-[#e6f4ea] text-[#0e8345] flex items-center justify-center mb-1">
                   <Calendar className="w-5 h-5" />
@@ -171,7 +293,6 @@ export default function AccountPage() {
                 <span className="text-xs text-slate-500 leading-tight">flexibly</span>
               </div>
 
-              {/* Feature 3: Buy & Sell */}
               <div className="flex flex-col items-start gap-1">
                 <div className="w-12 h-12 rounded-xl bg-[#e6f4ea] text-[#0e8345] flex items-center justify-center mb-1">
                   <Tag className="w-5 h-5" />
@@ -180,7 +301,6 @@ export default function AccountPage() {
                 <span className="text-xs text-slate-500 leading-tight">safely</span>
               </div>
 
-              {/* Feature 4: Trusted */}
               <div className="flex flex-col items-start gap-1">
                 <div className="w-12 h-12 rounded-xl bg-[#e6f4ea] text-[#0e8345] flex items-center justify-center mb-1">
                   <ShieldCheck className="w-5 h-5" />
@@ -191,17 +311,15 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Bottom Left Asset Graphic with Decorative Dots */}
-          <div className="relative mt-2 flex items-end justify-center sm:justify-start">
-            {/* Dot Matrix Decorative Pattern */}
+          {/* Graphic Showcase */}
+          <div className="relative mt-8 flex items-end justify-center sm:justify-start">
             <div className="absolute -left-3 bottom-10 grid grid-cols-3 gap-2 opacity-25 pointer-events-none">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="w-1.5 h-1.5 rounded-full bg-[#0e8345]" />
               ))}
             </div>
 
-            {/* Product Podium Image */}
-            <div className="relative z-10 w-full max-w-md ">
+            <div className="relative z-10 w-full max-w-md">
               <img
                 src="/assetify_products_podium2.png"
                 alt="Assetify Equipment Showcase"
@@ -211,17 +329,17 @@ export default function AccountPage() {
           </div>
         </div>
 
-        {/* Right Column: Elevated Authentication Form Card */}
+        {/* Right Column: Authentication Card */}
         <div className="lg:col-span-6 flex justify-center lg:justify-end">
           <div className="w-full max-w-md bg-white border border-slate-100 rounded-[28px] shadow-[0_15px_45px_rgba(0,0,0,0.06)] p-7 sm:p-9 relative">
-            
-            {/* Title & Subtitle */}
             <div className="mb-6">
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
                 {isLoginMode ? 'Welcome Back 👋' : 'Create Account 👋'}
               </h2>
               <p className="text-sm text-slate-500 mt-1.5 font-medium">
-                {isLoginMode ? 'Sign in to continue to Assetify' : 'Sign up to start renting & swapping assets'}
+                {isLoginMode
+                  ? 'Sign in using your email or registered phone number'
+                  : 'Sign up to start renting & swapping assets'}
               </p>
             </div>
 
@@ -239,14 +357,12 @@ export default function AccountPage() {
               </div>
             )}
 
-            {/* Auth Form */}
-            <form onSubmit={handleSubmit} className="space-y-4">
-              
-              {/* Extra Sign Up Fields when toggled */}
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               {!isLoginMode && (
                 <>
                   {/* Role Selector */}
-                  <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="grid grid-cols-2 gap-2 mb-2">
                     <button
                       type="button"
                       onClick={() => setSignupRole('renter')}
@@ -285,7 +401,7 @@ export default function AccountPage() {
 
                   {/* Full Name */}
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
                       Full Name
                     </label>
                     <div className="relative">
@@ -294,38 +410,82 @@ export default function AccountPage() {
                       </div>
                       <input
                         type="text"
+                        required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="John Doe"
-                        className="w-full pl-10 pr-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
+                        placeholder="e.g. Jean Doe"
+                        className="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Phone Number Input (Sign-up) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="tel"
+                        required
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+250 788 000 000"
+                        className="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Email Address (Sign-up) */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={signupEmail}
+                        onChange={(e) => setSignupEmail(e.target.value)}
+                        placeholder="name@example.com"
+                        className="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
                       />
                     </div>
                   </div>
                 </>
               )}
 
-              {/* Email Address Input */}
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                    <Mail className="w-4 h-4" />
+              {/* Login Identifier (Email OR Phone Number) */}
+              {isLoginMode && (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    Email or Phone Number
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="text"
+                      required
+                      value={loginIdentifier}
+                      onChange={(e) => setLoginIdentifier(e.target.value)}
+                      placeholder="you@example.com or +250..."
+                      className="w-full pl-10 pr-4 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
+                    />
                   </div>
-                  <input
-                    type="email"
-                    value={emailOrPhone}
-                    onChange={(e) => setEmailOrPhone(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full pl-10 pr-4 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
-                  />
                 </div>
-              </div>
+              )}
 
-              {/* Password Input */}
+              {/* Password */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Password
                 </label>
                 <div className="relative">
@@ -334,10 +494,11 @@ export default function AccountPage() {
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
-                    className="w-full pl-10 pr-10 py-3 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
+                    placeholder="••••••••"
+                    className="w-full pl-10 pr-10 py-2.5 bg-[#f8fafc] border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0e8345] focus:bg-white font-medium transition-all"
                   />
                   <button
                     type="button"
@@ -349,7 +510,7 @@ export default function AccountPage() {
                 </div>
               </div>
 
-              {/* Checkbox and Forgot password link */}
+              {/* Checkboxes & Reset Password Trigger */}
               {isLoginMode ? (
                 <div className="flex items-center justify-between pt-1">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -385,11 +546,11 @@ export default function AccountPage() {
                 </div>
               )}
 
-              {/* Primary Green Sign In Button with Right Arrow */}
+              {/* Submit CTA Button */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3.5 px-4 bg-[#0e8345] hover:bg-[#0b6b38] active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-[#0e8345]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+                className="w-full py-3 px-4 bg-[#0e8345] hover:bg-[#0b6b38] active:scale-[0.99] text-white font-bold text-sm rounded-xl shadow-lg shadow-[#0e8345]/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 mt-3"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -402,8 +563,8 @@ export default function AccountPage() {
               </button>
             </form>
 
-            {/* Divider: Or continue with */}
-            <div className="relative my-5 text-center">
+            {/* Divider */}
+            <div className="relative my-4 text-center">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-slate-200" />
               </div>
@@ -415,11 +576,9 @@ export default function AccountPage() {
             {/* Google OAuth Button */}
             <button
               type="button"
-              onClick={() => {
-                setEmailOrPhone('user.google@assetify.com');
-                setPassword('googlepass123');
-              }}
-              className="w-full flex items-center justify-center gap-3 py-3 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition-all active:scale-[0.99]"
+              onClick={handleGoogleSignIn}
+              disabled={isLoading}
+              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 shadow-sm transition-all active:scale-[0.99] disabled:opacity-50"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
@@ -442,8 +601,8 @@ export default function AccountPage() {
               <span>Continue with Google</span>
             </button>
 
-            {/* Switch Mode Link Footer */}
-            <div className="mt-6 text-center">
+            {/* Switch Mode Toggle */}
+            <div className="mt-5 text-center">
               <p className="text-xs sm:text-sm text-slate-500 font-medium">
                 {isLoginMode ? "Don't have an account? " : "Already have an account? "}
                 <button
@@ -480,7 +639,7 @@ export default function AccountPage() {
               </button>
             </div>
             <p className="text-xs text-slate-600">
-              Enter your registered email address. We'll send an instant reset link.
+              Enter your registered email address. We will send an instant reset link.
             </p>
 
             {resetSent ? (
@@ -519,10 +678,10 @@ export default function AccountPage() {
         </div>
       )}
 
-      {/* Page Bottom Footer */}
+      {/* Bottom Footer */}
       <footer className="py-6 text-center text-xs text-slate-500 border-t border-slate-100/60 mt-auto">
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-          <span>&copy; 2024 Assetify. All rights reserved.</span>
+          <span>&copy; 2026 Assetify. All rights reserved.</span>
           <span className="text-slate-300">|</span>
           <Link href="#" className="hover:text-slate-800 transition-colors">Privacy Policy</Link>
           <span className="text-slate-300">|</span>

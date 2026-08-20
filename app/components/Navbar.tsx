@@ -76,8 +76,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Store className="w-3.5 h-3.5" />
                 Browse Market
               </button>
-              <button
-                onClick={() => setActiveView("seller")}
+              <Link
+                href="/app/owner"
                 className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                   activeView === "seller"
                     ? "bg-emerald-600 text-white shadow-sm"
@@ -86,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <LayoutDashboard className="w-3.5 h-3.5" />
                 Owner Portal
-              </button>
+              </Link>
               <button
                 onClick={() => {
                   setActiveView("admin");

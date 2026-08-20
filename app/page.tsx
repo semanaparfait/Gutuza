@@ -27,13 +27,14 @@ import { AssetDetailModal } from './components/AssetDetailModal';
 import { BookingModal } from './components/BookingModal';
 import { ListAssetModal } from './components/ListAssetModal';
 import { ChatDrawer } from './components/ChatDrawer';
-import { SellerDashboard } from './components/SellerDashboard';
+
 import { AdminDashboard } from './components/AdminDashboard';
+import { SellerDashboard } from './components/SellerDashboard';
 
 export default function Home() {
   // Main State
   const [assets, setAssets] = React.useState<Asset[]>(MOCK_ASSETS);
-  const [activeView, setActiveView] = React.useState<'marketplace' | 'seller' | 'admin'>('marketplace');
+  const [activeView, setActiveView] = React.useState<'marketplace' | 'seller' | 'admin' | 'swaps'>('marketplace');
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
   const [selectedType, setSelectedType] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
@@ -281,12 +282,14 @@ export default function Home() {
           </div>
         )}
 
-        {/* Owner Portal View */}
-        {activeView === 'seller' && (
+
+
+        {/* Seller / Owner Portal & My Swaps View */}
+        {(activeView === 'seller' || activeView === 'swaps') && (
           <SellerDashboard
             assets={assets}
             onOpenListModal={() => setIsListModalOpen(true)}
-            onSelectAsset={(ast) => setSelectedAssetForDetail(ast)}
+            onSelectAsset={(asset) => setSelectedAssetForDetail(asset)}
           />
         )}
 

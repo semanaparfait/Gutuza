@@ -3,6 +3,24 @@
 @theme {
   --color-primary-bg: #111a18;
   --color-card-bg: #192724;
+
+  /* Brand blue scale — electric blue accent on deep navy, per the
+     modern navy / white / electric-blue palette. brand-900 matches
+     the navy already used across the header and footer (#0B1B41), and
+     brand-600 is the primary electric-blue accent/CTA color. */
+  --color-brand-50: #eef3ff;
+  --color-brand-100: #dce7ff;
+  --color-brand-200: #b9cfff;
+  --color-brand-300: #8fb0ff;
+  --color-brand-400: #5c87ff;
+  --color-brand-500: #3968ff;
+  --color-brand-600: #1f5eff;
+  --color-brand-700: #1746cc;
+  --color-brand-800: #123699;
+  --color-brand-900: #0b1b41;
+
+  --font-sans: var(--font-manrope), system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-space-grotesk), var(--font-manrope), system-ui, -apple-system, sans-serif;
 }
 
 @layer base {
@@ -11,9 +29,9 @@
     --foreground: #0f172a;
     --card: #ffffff;
     --card-foreground: #0f172a;
-    --primary: #059669;
-    --primary-hover: #047857;
-    --primary-light: #ecfdf5;
+    --primary: #1f5eff;
+    --primary-hover: #1746cc;
+    --primary-light: #eef3ff;
     --accent: #d97706;
     --border: #e2e8f0;
   }
@@ -23,9 +41,9 @@
     --foreground: #f8fafc;
     --card: #192724;
     --card-foreground: #f8fafc;
-    --primary: #10b981;
-    --primary-hover: #059669;
-    --primary-light: #064e3b;
+    --primary: #3968ff;
+    --primary-hover: #1f5eff;
+    --primary-light: #123699;
     --accent: #f59e0b;
     --border: #233632;
   }
@@ -34,7 +52,7 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
   overflow-x: hidden;
 }
 

@@ -28,7 +28,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 }) => {
   return (
     // 60% Dominant Crisp White (#FFFFFF) Card with subtle border & shadow
-    <div className="group relative bg-white  rounded-2xl border border-slate-200/90 dark:border-emerald-900/40 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden">
+    <div className="group relative bg-white  rounded-2xl  dark:border-emerald-900/40 shadow-sm hover:shadow-xl hover:border-emerald-500/40 transition-all duration-300 flex flex-col overflow-hidden">
       
       {/* Image Thumbnail */}
       <div className="relative w-full h-52 bg-slate-100 dark:bg-slate-800 overflow-hidden">
@@ -76,7 +76,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
 
         {/* Price tag pill */}
         <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-[#111a18] rounded-xl text-black flex items-baseline gap-1 shadow-md">
-          <span className="text-base font-black text-emerald-400">${asset.price}</span>
+          <span className="text-base font-black text-emerald-400">${asset.price.toLocaleString()}</span>
           <span className="text-[10px] text-slate-300">/ {asset.priceUnit}</span>
         </div>
       </div>

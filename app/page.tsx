@@ -153,7 +153,7 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-200  font-sans">
+    <div className="min-h-screen flex flex-col bg-slate-50 font-sans">
 
       {/* Top Navbar */}
       <Navbar
@@ -194,7 +194,7 @@ export default function Home() {
               )}
 
               {/* Filter Controls Bar */}
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-[#0B1B41] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-brand-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
 
                 {/* Result Counter & Active Pill */}
                 <div className="flex items-center gap-3">
@@ -202,9 +202,9 @@ export default function Home() {
                     Showing <span className="text-white  font-extrabold">{filteredAssets.length}</span> Assets Available
                   </span>
                   {selectedCategory !== 'all' && (
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 dark:bg-brand-800/80 text-brand-700 dark:text-brand-300 border border-brand-300 dark:border-brand-800">
                       Category: {selectedCategory}
-                      <button onClick={() => setSelectedCategory('all')} className="ml-1 hover:text-emerald-900">
+                      <button onClick={() => setSelectedCategory('all')} className="ml-1 hover:text-brand-900">
                         <X className="w-3 h-3" />
                       </button>
                     </span>
@@ -227,7 +227,7 @@ export default function Home() {
                         setPriceFilterTouched(true);
                         setMaxPrice(Number(e.target.value));
                       }}
-                      className="w-28 accent-emerald-500"
+                      className="w-28 accent-brand-600"
                     />
                     <span className="font-bold text-slate-900 dark:text-white min-w-[50px]">${maxPrice}</span>
                   </div>
@@ -237,7 +237,7 @@ export default function Home() {
                     <button
                       onClick={() => setViewMode('grid')}
                       className={`p-2 rounded-lg transition-all ${viewMode === 'grid'
-                          ? 'bg-white dark:bg-[#192724] text-emerald-600 shadow-sm'
+                          ? 'bg-white dark:bg-[#192724] text-brand-600 shadow-sm'
                           : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       title="Grid View"
@@ -247,7 +247,7 @@ export default function Home() {
                     <button
                       onClick={() => setViewMode('list')}
                       className={`p-2 rounded-lg transition-all ${viewMode === 'list'
-                          ? 'bg-white dark:bg-[#192724] text-emerald-600 shadow-sm'
+                          ? 'bg-white dark:bg-[#192724] text-brand-600 shadow-sm'
                           : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       title="List View"
@@ -257,7 +257,7 @@ export default function Home() {
                     <button
                       onClick={() => setViewMode('map')}
                       className={`p-2 rounded-lg transition-all ${viewMode === 'map'
-                          ? 'bg-white dark:bg-[#192724] text-emerald-600 shadow-sm'
+                          ? 'bg-white dark:bg-[#192724] text-brand-600 shadow-sm'
                           : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                         }`}
                       title="Map View"
@@ -274,19 +274,19 @@ export default function Home() {
               {viewMode === 'map' ? (
                 /* Interactive Map View Representation */
                 <div className="relative w-full h-[550px] bg-[#111a18] rounded-3xl border border-slate-800 overflow-hidden flex items-center justify-center p-6 text-white text-center">
-                  <div className="absolute inset-0 opacity-30 bg-[radial-gradient(#10b981_1px,transparent_1px)] [background-size:20px_20px]" />
+                  <div className="absolute inset-0 opacity-30 bg-[radial-gradient(#1f5eff_1px,transparent_1px)] [background-size:20px_20px]" />
                   <div className="relative z-10 max-w-md space-y-4">
-                    <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/40 animate-pulse">
+                    <div className="w-16 h-16 bg-brand-500/20 text-brand-400 rounded-full flex items-center justify-center mx-auto border border-brand-500/40 animate-pulse">
                       <MapIcon className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-black">Interactive Geospatial Asset Radar</h3>
+                    <h3 className="text-2xl font-black font-display">Interactive Geospatial Asset Radar</h3>
                     <p className="text-xs text-slate-300">
                       Locate active Caterpillar excavators, John Deere tractors, cold storage facilities, and fleet trucks pinned across Kigali, Musanze, and regional hubs.
                     </p>
                     <div className="flex justify-center gap-2 pt-2">
                       <button
                         onClick={() => setViewMode('grid')}
-                        className="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-500/20"
+                        className="px-5 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs rounded-xl shadow-lg shadow-brand-500/20"
                       >
                         Return to Grid View
                       </button>
@@ -323,7 +323,7 @@ export default function Home() {
                   </p>
                   <button
                     onClick={() => setIsListModalOpen(true)}
-                    className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl"
+                    className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-colors"
                   >
                     List an Asset
                   </button>
@@ -347,7 +347,7 @@ export default function Home() {
                       setPriceFilterTouched(false);
                       setMaxPrice(priceCeiling);
                     }}
-                    className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl"
+                    className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-colors"
                   >
                     Reset All Filters
                   </button>
@@ -392,7 +392,7 @@ export default function Home() {
       />
 
       {/* Professional Footer */}
-      <footer className="bg-[#0B1B41] text-slate-400 border-t border-slate-800 text-xs py-12">
+      <footer className="bg-brand-900 text-slate-400 border-t border-slate-800 text-xs py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -411,20 +411,20 @@ export default function Home() {
             <div>
               <h4 className="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Core Categories</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Heavy Machinery & Excavators</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Agricultural Tractors & Implements</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Cold Storage Warehouses</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">4x4 Utility & Freight Trucks</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">Heavy Machinery & Excavators</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">Agricultural Tractors & Implements</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">Cold Storage Warehouses</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">4x4 Utility & Freight Trucks</a></li>
               </ul>
             </div>
 
             <div>
               <h4 className="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Platform Guarantees</h4>
               <ul className="space-y-2">
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Assetify Bank Escrow Protection</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Verified Host KYC & Inspections</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">Comprehensive Asset Insurance</a></li>
-                <li><a href="#" className="hover:text-emerald-400 transition-colors">24/7 Field Operator Support</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">Assetify Bank Escrow Protection</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">Verified Host KYC & Inspections</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">Comprehensive Asset Insurance</a></li>
+                <li><a href="#" className="hover:text-brand-400 transition-colors">24/7 Field Operator Support</a></li>
               </ul>
             </div>
 
@@ -432,7 +432,7 @@ export default function Home() {
               <h4 className="text-white font-bold mb-3 uppercase tracking-wider text-[11px]">Regional Network</h4>
               <div className="space-y-2 text-slate-400">
                 <p className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-emerald-400" />
+                  <MapPin className="w-4 h-4 text-brand-400" />
                   Kigali, Rwanda (HQ)
                 </p>
                 <p className="flex items-center gap-2">
@@ -440,7 +440,7 @@ export default function Home() {
                   Cross-border East Africa
                 </p>
                 <p className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-emerald-400" />
+                  <Mail className="w-4 h-4 text-brand-400" />
                   support@assetify.com
                 </p>
               </div>

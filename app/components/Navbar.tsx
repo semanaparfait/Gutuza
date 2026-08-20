@@ -18,10 +18,11 @@ import {
   MapPin
 } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
-  activeView: "marketplace" | "seller" | "admin";
-  setActiveView: (view: "marketplace" | "seller" | "admin") => void;
+  activeView: "marketplace" | "seller" | "admin" | "swaps";
+  setActiveView: (view: "marketplace" | "seller" | "admin" | "swaps") => void;
   savedCount: number;
   onOpenListModal: () => void;
   onToggleChat: () => void;
@@ -43,6 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [selectedType, setSelectedType] = React.useState("All");
   const router = useRouter();
+  const { user, profile, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#0B1B41] text-white border-b border-slate-800 shadow-md">
@@ -153,14 +155,46 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* User Profile Avatar Link */}
-            <div className="flex items-center pl-1 sm:pl-2 border-l border-slate-800">
-              <Link href="/app/account">
-                <div className="flex items-center gap-1.5 px-2 py-1.5 sm:py-2 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-colors text-xs font-semibold">
-                  <User className="w-4 h-4 text-emerald-400" />
-                  <span className="hidden sm:inline">Profile</span>
+            {/* User Profile & Auth Controls */}
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <Link href="/app/owner" className="flex items-center gap-2 group">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 text-xs font-bold">
+                      {profile?.photoURL ? (
+                        <img src={profile.photoURL} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                      ) : (
+                        <User className="w-4 h-4" />
+                      )}
+                    </div>
+                    <div className="hidden md:flex flex-col text-left">
+                      <span className="text-xs font-bold text-slate-100 group-hover:text-emerald-400 transition-colors">
+                        {profile?.fullName || user.displayName || 'User'}
+                      </span>
+                      <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
+                        {profile?.role || 'Member'}
+                      </span>
+                    </div>
+                  </Link>
+
+                  <button
+                    onClick={async () => {
+                      await logout();
+                      router.push('/');
+                    }}
+                    className="px-2.5 py-1 text-[11px] font-bold text-red  rounded-lg transition-all"
+                  >
+                    Logout
+                  </button>
                 </div>
-              </Link>
+              ) : (
+                <Link
+                  href="/app/account"
+                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                >
+                  Log In
+                </Link>
+              )}
             </div>
 
             {/* Mobile Menu Toggle Button */}

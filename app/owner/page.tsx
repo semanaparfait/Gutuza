@@ -8,13 +8,32 @@ import { ListAssetModal } from '../components/ListAssetModal';
 import { AssetDetailModal } from '../components/AssetDetailModal';
 import { ChatDrawer } from '../components/ChatDrawer';
 
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+
 export default function OwnerPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [assets, setAssets] = useState<Asset[]>(MOCK_ASSETS);
   const [activeView, setActiveView] = useState<'marketplace' | 'seller' | 'admin' | 'swaps'>('seller');
   const [selectedAssetForDetail, setSelectedAssetForDetail] = useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  React.useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [loading, user, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0B1B41] text-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500"></div>
+      </div>
+    );
+  }
 
   const handleAddAsset = (newAsset: Asset) => {
     setAssets(prev => [newAsset, ...prev]);

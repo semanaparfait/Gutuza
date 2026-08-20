@@ -28,13 +28,9 @@ import { BookingModal } from './components/BookingModal';
 import { ListAssetModal } from './components/ListAssetModal';
 import { ChatDrawer } from './components/ChatDrawer';
 
-import { AdminDashboard } from './components/AdminDashboard';
-import { SellerDashboard } from './components/SellerDashboard';
-
 export default function Home() {
   // Main State
   const [assets, setAssets] = React.useState<Asset[]>(MOCK_ASSETS);
-  const [activeView, setActiveView] = React.useState<'marketplace' | 'seller' | 'admin' | 'swaps'>('marketplace');
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
   const [selectedType, setSelectedType] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
@@ -108,8 +104,6 @@ export default function Home() {
 
       {/* Top Navbar */}
       <Navbar
-        activeView={activeView}
-        setActiveView={setActiveView}
         savedCount={savedAssetIds.length}
         onOpenListModal={() => setIsListModalOpen(true)}
         onToggleChat={() => setIsChatDrawerOpen(!isChatDrawerOpen)}
@@ -117,13 +111,12 @@ export default function Home() {
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
-      
+
 
       {/* Main Container Views */}
       <main className="flex-1">
 
-        {activeView === 'marketplace' && (
-          <div>
+        <div>
             {/* Hero Banner */}
             <Hero
               selectedCategory={selectedCategory}
@@ -279,24 +272,7 @@ export default function Home() {
               )}
 
             </section>
-          </div>
-        )}
-
-
-
-        {/* Seller / Owner Portal & My Swaps View */}
-        {(activeView === 'seller' || activeView === 'swaps') && (
-          <SellerDashboard
-            assets={assets}
-            onOpenListModal={() => setIsListModalOpen(true)}
-            onSelectAsset={(asset) => setSelectedAssetForDetail(asset)}
-          />
-        )}
-
-        {/* Admin Governance View */}
-        {activeView === 'admin' && (
-          <AdminDashboard />
-        )}
+        </div>
 
       </main>
 

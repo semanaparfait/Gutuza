@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
-  Building2,
   Search,
   PlusCircle,
   Heart,
@@ -21,94 +20,91 @@ import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
-  activeView: "marketplace" | "seller" | "admin" | "swaps";
-  setActiveView: (view: "marketplace" | "seller" | "admin" | "swaps") => void;
-  savedCount: number;
-  onOpenListModal: () => void;
-  onToggleChat: () => void;
-  unreadChatCount: number;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
+  savedCount?: number;
+  onOpenListModal?: () => void;
+  onToggleChat?: () => void;
+  unreadChatCount?: number;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
 }
 
+const ROLE_LABEL: Record<string, string> = {
+  buyer: "My Dashboard",
+  seller: "Seller Dashboard",
+  admin: "Admin Panel",
+};
+
 export const Navbar: React.FC<NavbarProps> = ({
-  activeView,
-  setActiveView,
-  savedCount,
+  savedCount = 0,
   onOpenListModal,
   onToggleChat,
-  unreadChatCount,
+  unreadChatCount = 0,
   searchQuery,
   setSearchQuery,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [selectedType, setSelectedType] = React.useState("All");
   const router = useRouter();
+  const pathname = usePathname();
   const { user, profile, logout } = useAuth();
+
+  const isMarketplace = pathname === "/";
+  const isDashboard = pathname?.startsWith("/dashboard") ?? false;
+
+  // While the profile is still hydrating we send people to /dashboard,
+  // which itself waits and routes to the correct role once it's ready.
+  const dashboardHref = profile ? `/dashboard/${profile.role}` : "/dashboard";
+  const dashboardLabel = profile ? ROLE_LABEL[profile.role] ?? "My Dashboard" : "My Dashboard";
+  const DashboardIcon = profile?.role === "admin" ? ShieldCheck : LayoutDashboard;
 
   return (
     <header className="sticky top-0 z-40 w-full bg-[#0B1B41] text-white border-b border-slate-800 shadow-md">
       {/* Primary Top Header Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800/80">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
-          
+
           {/* Logo & Brand */}
           <div className="flex items-center gap-4 sm:gap-8">
-            <button
-              onClick={() => setActiveView("marketplace")}
-              className="flex items-center gap-2 group text-left shrink-0"
-            >
+            <Link href="/" className="flex items-center gap-2 group text-left shrink-0">
               <img
                 src="/Logoo.svg"
                 alt="Assetify Logo"
                 className="h-8 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
               />
-            </button>
+            </Link>
 
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
-              <button
-                onClick={() => setActiveView("marketplace")}
+              <Link
+                href="/"
                 className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                  activeView === "marketplace"
+                  isMarketplace
                     ? "bg-emerald-600 text-white shadow-sm"
                     : "text-slate-300 hover:text-white hover:bg-slate-800/70"
                 }`}
               >
                 <Store className="w-3.5 h-3.5" />
                 Browse Market
-              </button>
-              <Link
-                href="/app/owner"
-                className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                  activeView === "seller"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/70"
-                }`}
-              >
-                <LayoutDashboard className="w-3.5 h-3.5" />
-                Owner Portal
               </Link>
-              <button
-                onClick={() => {
-                  setActiveView("admin");
-                  router.push("/app/admin");
-                }}
-                className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                  activeView === "admin"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/70"
-                }`}
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Admin Panel
-              </button>
+              {user && (
+                <Link
+                  href={dashboardHref}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                    isDashboard
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "text-slate-300 hover:text-white hover:bg-slate-800/70"
+                  }`}
+                >
+                  <DashboardIcon className="w-3.5 h-3.5" />
+                  {dashboardLabel}
+                </Link>
+              )}
             </nav>
           </div>
 
           {/* Right Action Controls */}
           <div className="flex items-center gap-1.5 sm:gap-3">
-            
+
             {/* Home Navigation */}
             <Link
               href="/"
@@ -118,15 +114,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Home</span>
             </Link>
 
-            {/* Primary Action: List an Asset Button */}
-            <button
-              onClick={onOpenListModal}
-              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98] shrink-0"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">List an Asset</span>
-              <span className="sm:hidden">List</span>
-            </button>
+            {/* Primary Action: List an Asset Button — sellers only */}
+            {profile?.role === "seller" && (
+              <button
+                onClick={() => onOpenListModal?.()}
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98] shrink-0"
+              >
+                <PlusCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">List an Asset</span>
+                <span className="sm:hidden">List</span>
+              </button>
+            )}
 
             {/* Saved Favorites Trigger */}
             <button
@@ -143,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Direct Messages Chat Trigger */}
             <button
-              onClick={onToggleChat}
+              onClick={() => onToggleChat?.()}
               className="relative p-2 sm:p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-colors shrink-0"
               title="Direct Messages"
             >
@@ -159,7 +157,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
               {user ? (
                 <div className="flex items-center gap-2">
-                  <Link href="/app/owner" className="flex items-center gap-2 group">
+                  <Link href={dashboardHref} className="flex items-center gap-2 group">
                     <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 text-xs font-bold">
                       {profile?.photoURL ? (
                         <img src={profile.photoURL} alt="Profile" className="w-full h-full rounded-full object-cover" />
@@ -182,18 +180,26 @@ export const Navbar: React.FC<NavbarProps> = ({
                       await logout();
                       router.push('/');
                     }}
-                    className="px-2.5 py-1 text-[11px] font-bold text-red  rounded-lg transition-all"
+                    className="px-2.5 py-1 text-[11px] font-bold text-rose-400 hover:text-rose-300 rounded-lg transition-all"
                   >
                     Logout
                   </button>
                 </div>
               ) : (
-                <Link
-                  href="/app/account"
-                  className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
-                >
-                  Log In
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/login"
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="hidden sm:inline-flex px-3.5 py-1.5 border border-slate-700 hover:border-emerald-500 hover:text-emerald-400 text-slate-200 font-bold text-xs rounded-xl transition-all"
+                  >
+                    Sign Up
+                  </Link>
+                </div>
               )}
             </div>
 
@@ -215,111 +221,116 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Mobile Slide-Down Navigation Drawer */}
         {mobileMenuOpen && (
           <div className="lg:hidden py-3 border-t border-slate-800 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                onClick={() => {
-                  setActiveView("marketplace");
-                  setMobileMenuOpen(false);
-                }}
+            <div className={`grid gap-2 ${user ? "grid-cols-2" : "grid-cols-3"}`}>
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
                 className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                  activeView === "marketplace"
+                  isMarketplace
                     ? "bg-emerald-600 border-emerald-600 text-white"
                     : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
                 }`}
               >
                 <Store className="w-4 h-4" />
                 <span>Market</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView("seller");
-                  setMobileMenuOpen(false);
-                }}
-                className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                  activeView === "seller"
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
-                }`}
-              >
-                <LayoutDashboard className="w-4 h-4" />
-                <span>Owner</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveView("admin");
-                  setMobileMenuOpen(false);
-                  router.push("/app/admin");
-                }}
-                className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-xs font-bold border transition-all ${
-                  activeView === "admin"
-                    ? "bg-emerald-600 border-emerald-600 text-white"
-                    : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
-                }`}
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Admin</span>
-              </button>
+              </Link>
+
+              {user ? (
+                <Link
+                  href={dashboardHref}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`flex flex-col items-center gap-1 p-2.5 rounded-xl text-xs font-bold border transition-all ${
+                    isDashboard
+                      ? "bg-emerald-600 border-emerald-600 text-white"
+                      : "bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                  }`}
+                >
+                  <DashboardIcon className="w-4 h-4" />
+                  <span>{profile?.role === "admin" ? "Admin" : profile?.role === "seller" ? "Seller" : "My Space"}</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center gap-1 p-2.5 rounded-xl text-xs font-bold border bg-emerald-600 border-emerald-600 text-white"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Log In</span>
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex flex-col items-center gap-1 p-2.5 rounded-xl text-xs font-bold border bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800"
+                  >
+                    <PlusCircle className="w-4 h-4" />
+                    <span>Sign Up</span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
       </div>
 
-      {/* Secondary Search & Filter Sub-Bar - Fully Responsive Grid/Flex */}
-      <div className="bg-[#081432] border-t border-slate-800/80 px-4 sm:px-6 lg:px-8 py-2.5">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center gap-2.5 sm:gap-4">
-          
-          {/* Search Input Field */}
-          <div className="flex-1 relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <Search className="w-4 h-4" />
+      {/* Secondary Search & Filter Sub-Bar - only shown where search is wired up (marketplace) */}
+      {setSearchQuery && (
+        <div className="bg-[#081432] border-t border-slate-800/80 px-4 sm:px-6 lg:px-8 py-2.5">
+          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center gap-2.5 sm:gap-4">
+
+            {/* Search Input Field */}
+            <div className="flex-1 relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <Search className="w-4 h-4" />
+              </div>
+              <input
+                type="text"
+                value={searchQuery ?? ""}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search equipment, tools & machinery..."
+                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-700/80 rounded-xl text-xs text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium transition-all"
+              />
             </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search equipment, tools & machinery..."
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-700/80 rounded-xl text-xs text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium transition-all"
-            />
-          </div>
 
-          {/* Location Selector Dropdown */}
-          <div className="relative w-full md:w-48 shrink-0">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-              <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+            {/* Location Selector Dropdown */}
+            <div className="relative w-full md:w-48 shrink-0">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <MapPin className="w-3.5 h-3.5 text-emerald-400" />
+              </div>
+              <select className="w-full pl-8 pr-4 py-2 text-xs rounded-xl bg-white border border-slate-700/80 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium appearance-none cursor-pointer">
+                <option value="all">Any location</option>
+                <option value="kigali">Kigali</option>
+                <option value="gatenga">Gatenga</option>
+                <option value="kicukiro">Kicukiro</option>
+              </select>
             </div>
-            <select className="w-full pl-8 pr-4 py-2 text-xs rounded-xl bg-white border border-slate-700/80 text-black focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium appearance-none cursor-pointer">
-              <option value="all">Any location</option>
-              <option value="kigali">Kigali</option>
-              <option value="gatenga">Gatenga</option>
-              <option value="kicukiro">Kicukiro</option>
-            </select>
-          </div>
 
-          {/* Listing Type Tabs (Horizontal Scrollable on Mobile) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 shrink-0">
-            {["All", "Rent", "Sale", "Service"].map((t) => (
-              <button
-                key={t}
-                onClick={() => setSelectedType(t)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                  selectedType === t
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "bg-slate-900/50 text-slate-300 border border-slate-800 hover:text-white hover:bg-slate-800"
-                }`}
-              >
-                {t === "All"
-                  ? "All Listings"
-                  : t === "Rent"
-                    ? "For Rent"
-                    : t === "Sale"
-                      ? "For Sale"
-                      : "Services"}
-              </button>
-            ))}
-          </div>
+            {/* Listing Type Tabs (Horizontal Scrollable on Mobile) */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 shrink-0">
+              {["All", "Rent", "Sale", "Service"].map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setSelectedType(t)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    selectedType === t
+                      ? "bg-emerald-600 text-white shadow-sm"
+                      : "bg-slate-900/50 text-slate-300 border border-slate-800 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  {t === "All"
+                    ? "All Listings"
+                    : t === "Rent"
+                      ? "For Rent"
+                      : t === "Sale"
+                        ? "For Sale"
+                        : "Services"}
+                </button>
+              ))}
+            </div>
 
+          </div>
         </div>
-      </div>
+      )}
     </header>
   );
 };

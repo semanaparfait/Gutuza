@@ -9,9 +9,11 @@ import {
   MapPin,
   ChevronRight,
   ChevronDown,
+  PlusCircle,
   User
 } from 'lucide-react';
 import { Asset } from '../data/mockAssets';
+import { useAuth } from '@/context/AuthContext';
 
 interface SellerDashboardProps {
   assets?: Asset[];
@@ -24,6 +26,10 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
   onOpenListModal,
   onSelectAsset,
 }) => {
+  const { user, profile } = useAuth();
+  const displayName = profile?.fullName || user?.displayName || 'Assetify Seller';
+  const avatarUrl = profile?.photoURL || user?.photoURL || '';
+
   const [selectedCategory, setSelectedCategory] = useState<string>('tools');
   const [viewAllSwaps, setViewAllSwaps] = useState<boolean>(false);
   const [viewAllWishlist, setViewAllWishlist] = useState<boolean>(false);
@@ -85,27 +91,36 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
           
           {/* ================= LEFT SIDEBAR (Profile & Categories) ================= */}
           <aside className="lg:col-span-4 space-y-6">
-            
+
+            {/* Primary CTA: List a new asset on the marketplace */}
+            <button
+              onClick={onOpenListModal}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-extrabold rounded-2xl shadow-md shadow-emerald-600/20 transition-all active:scale-[0.98]"
+            >
+              <PlusCircle className="w-5 h-5" />
+              List a New Asset
+            </button>
+
             {/* User Profile Card */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 text-center">
               {/* Profile Avatar */}
               <div className="relative w-28 h-28 mx-auto mb-4">
                 <div className="w-full h-full rounded-full bg-emerald-100 border-4 border-slate-100 overflow-hidden flex items-center justify-center shadow-inner">
-                  <img
-                    src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=250&q=80"
-                    alt="John D."
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                  <User className="w-14 h-14 text-emerald-700" />
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-14 h-14 text-emerald-700" />
+                  )}
                 </div>
               </div>
 
               {/* User Name & Handle */}
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">John D.</h2>
-              <p className="text-sm text-slate-500 font-medium mb-6">@metify.combrom</p>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{displayName}</h2>
+              <p className="text-sm text-slate-500 font-medium mb-6">{profile?.email || user?.email || 'Seller on Assetify'}</p>
 
               {/* Profile Metrics Row */}
               <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-100 pt-4">

@@ -14,7 +14,7 @@ export interface UserProfile {
   fullName: string;
   email: string;
   phoneNumber?: string;
-  role: "trader" | "business" | "admin";
+  role: "buyer" | "seller" | "admin";
   photoURL?: string;
   createdAt?: unknown;
 }
@@ -25,6 +25,24 @@ interface AuthContextType {
   loading: boolean;
   logout: () => Promise<void>;
 }
+
+// Some accounts were created before role naming was standardized to
+// "buyer" | "seller" | "admin" (older signup flows stored "trader",
+// "renter", "business", or "owner"). Normalize whatever is in Firestore
+// so every legacy account still routes to a real dashboard.
+const normalizeRole = (raw: unknown): UserProfile["role"] => {
+  switch (raw) {
+    case "seller":
+    case "business":
+    case "owner":
+      return "seller";
+    case "admin":
+      return "admin";
+    default:
+      // "buyer", "trader", "renter", missing, or anything unrecognized.
+      return "buyer";
+  }
+};
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -47,7 +65,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
-          setProfile(userDoc.data() as UserProfile);
+          const data = userDoc.data() as UserProfile;
+          const role = normalizeRole(data.role);
+
+          if (role !== data.role) {
+            // Migrate the legacy value so future reads don't need this.
+            await setDoc(userDocRef, { role }, { merge: true });
+          }
+
+          setProfile({ ...data, role });
         } else {
           // Fallback if signed in with Google for the first time
           const fallbackProfile: UserProfile = {
@@ -55,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             fullName: currentUser.displayName || "Assetify Member",
             email: currentUser.email || "",
             phoneNumber: currentUser.phoneNumber || "",
-            role: "trader",
+            role: "buyer",
             photoURL: currentUser.photoURL || "",
             createdAt: serverTimestamp(),
           };

@@ -19,7 +19,7 @@ import {
   X
 } from 'lucide-react';
 
-import { MOCK_ASSETS, Asset, CATEGORIES } from './data/mockAssets';
+import { Asset, CATEGORIES } from './data/mockAssets';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AssetCard } from './components/AssetCard';
@@ -30,27 +30,74 @@ import { ChatDrawer } from './components/ChatDrawer';
 import { subscribeToAllAssets } from '@/lib/assetServices';
 
 export default function Home() {
-  // Main State — real listings from Firestore (published via the "List an
-  // Asset" flow) merged with the curated MOCK_ASSETS so the marketplace
-  // never looks empty for a brand new project.
+  // Main State — real listings from Firestore, published via the "List an
+  // Asset" flow. The marketplace used to merge these with a curated
+  // MOCK_ASSETS catalog so it never looked empty for a brand-new project;
+  // per request, it now shows only real data — an empty catalog renders its
+  // own "No Assets Listed Yet" state below instead of falling back to
+  // sample listings.
   const [liveAssets, setLiveAssets] = React.useState<Asset[]>([]);
+  const [liveAssetsError, setLiveAssetsError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const unsubscribe = subscribeToAllAssets(setLiveAssets);
+    const unsubscribe = subscribeToAllAssets(
+      (assets) => {
+        setLiveAssetsError(null);
+        setLiveAssets(assets);
+      },
+      (err) => {
+        // Most likely cause: the Firestore security rules for the "assets"
+        // collection reject this read (e.g. not applied yet, or a signed-out
+        // visitor isn't covered by them). Since the marketplace no longer
+        // falls back to a sample catalog, a failed read means an empty grid,
+        // so this needs to be visible rather than silent.
+        setLiveAssetsError(
+          err.message.toLowerCase().includes('permission')
+            ? 'Live listings aren’t loading — the Firestore security rules for the "assets" collection may not be applied yet.'
+            : `Live listings aren’t loading (${err.message}).`
+        );
+      }
+    );
     return () => unsubscribe();
   }, []);
 
-  const assets = React.useMemo(() => [...liveAssets, ...MOCK_ASSETS], [liveAssets]);
+  const assets = liveAssets;
 
   const [selectedCategory, setSelectedCategory] = React.useState<string>('all');
   const [selectedType, setSelectedType] = React.useState<string>('All');
   const [searchQuery, setSearchQuery] = React.useState<string>('');
   const [locationFilter, setLocationFilter] = React.useState<string>('');
   const [viewMode, setViewMode] = React.useState<'grid' | 'list' | 'map'>('grid');
+
+  // The "Max Rate" slider was previously hardcoded to a 50–3000 range sized
+  // for the old MOCK_ASSETS catalog's USD-scale prices ($50–$3000). Real
+  // listings are priced in RWF (a modest listing defaults to 25,000 if left
+  // blank), so a hardcoded max of 3000 would silently filter out every real
+  // listing whose raw price number exceeds it — the asset would still be in
+  // `assets`, just never reaching `filteredAssets`. The slider's ceiling is
+  // derived from the actual prices present instead of a fixed number, with
+  // 3000 only as the floor/fallback before any real listings have loaded.
+  // `priceFilterTouched` makes sure that once someone actually drags the
+  // slider, new listings loading in afterward don't silently override their
+  // choice.
+  const priceCeiling = React.useMemo(() => {
+    const prices = assets.map((a) => a.price).filter((p) => Number.isFinite(p));
+    return prices.length ? Math.max(3000, ...prices) : 3000;
+  }, [assets]);
   const [maxPrice, setMaxPrice] = React.useState<number>(3000);
+  const [priceFilterTouched, setPriceFilterTouched] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (!priceFilterTouched) {
+      setMaxPrice(priceCeiling);
+    }
+  }, [priceCeiling, priceFilterTouched]);
 
   // Modals & Drawers State
-  const [savedAssetIds, setSavedAssetIds] = React.useState<string[]>(['assetify-001']);
+  // Previously seeded with 'assetify-001', a MOCK_ASSETS id — now that the
+  // mock catalog is gone from this page, that id would never match a real
+  // asset, so it starts empty instead of silently doing nothing.
+  const [savedAssetIds, setSavedAssetIds] = React.useState<string[]>([]);
   const [selectedAssetForDetail, setSelectedAssetForDetail] = React.useState<Asset | null>(null);
   const [selectedAssetForBooking, setSelectedAssetForBooking] = React.useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = React.useState<boolean>(false);
@@ -139,6 +186,13 @@ export default function Home() {
             {/* Marketplace Grid & Controls Section */}
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
 
+              {/* Live listings error — surfaced instead of failing silently */}
+              {liveAssetsError && (
+                <div className="flex items-start gap-2 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-2xl text-xs font-semibold text-amber-800 dark:text-amber-300">
+                  <span>{liveAssetsError}</span>
+                </div>
+              )}
+
               {/* Filter Controls Bar */}
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-[#0B1B41] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
 
@@ -166,10 +220,13 @@ export default function Home() {
                     <input
                       type="range"
                       min="50"
-                      max="3000"
-                      step="50"
+                      max={priceCeiling}
+                      step={Math.max(50, Math.round(priceCeiling / 100 / 50) * 50)}
                       value={maxPrice}
-                      onChange={(e) => setMaxPrice(Number(e.target.value))}
+                      onChange={(e) => {
+                        setPriceFilterTouched(true);
+                        setMaxPrice(Number(e.target.value));
+                      }}
                       className="w-28 accent-emerald-500"
                     />
                     <span className="font-bold text-slate-900 dark:text-white min-w-[50px]">${maxPrice}</span>
@@ -252,8 +309,27 @@ export default function Home() {
                     />
                   ))}
                 </div>
+              ) : assets.length === 0 ? (
+                /* Nothing has been listed in Firestore yet — distinct from
+                   "filters matched nothing" below, since there's no mock
+                   catalog anymore to guarantee the grid is never empty. */
+                <div className="text-center py-20 bg-white dark:bg-[#192724] rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                  <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mx-auto">
+                    <Building2 className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">No Assets Listed Yet</h3>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Be the first to list machinery, land, or tools on Assetify.
+                  </p>
+                  <button
+                    onClick={() => setIsListModalOpen(true)}
+                    className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl"
+                  >
+                    List an Asset
+                  </button>
+                </div>
               ) : (
-                /* Empty state when no assets match filter */
+                /* Real listings exist, but none match the current filters */
                 <div className="text-center py-20 bg-white dark:bg-[#192724] rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
                   <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 text-slate-400 rounded-full flex items-center justify-center mx-auto">
                     <Search className="w-8 h-8" />
@@ -268,7 +344,8 @@ export default function Home() {
                       setSelectedType('All');
                       setSearchQuery('');
                       setLocationFilter('');
-                      setMaxPrice(3000);
+                      setPriceFilterTouched(false);
+                      setMaxPrice(priceCeiling);
                     }}
                     className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl"
                   >

@@ -13,6 +13,8 @@ import {
   UserCheck
 } from 'lucide-react';
 import { Asset } from '../data/mockAssets';
+import { useAuth } from '@/context/AuthContext';
+import { createBooking, type PaymentMethod } from '@/lib/bookingServices';
 
 interface BookingModalProps {
   asset: Asset | null;
@@ -20,14 +22,34 @@ interface BookingModalProps {
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) => {
-  if (!asset) return null;
+  // All hooks run unconditionally, above any early return — the `if (!asset)`
+  // guard used to sit before these useState calls, which is a React
+  // rules-of-hooks violation (hook count changes across renders as `asset`
+  // toggles between null and a value). Fixed here while rewriting this
+  // handler to write to Firestore.
+  const { user } = useAuth();
 
   const [startDate, setStartDate] = React.useState('2026-08-05');
   const [endDate, setEndDate] = React.useState('2026-08-08');
   const [includeOperator, setIncludeOperator] = React.useState(true);
   const [includeInsurance, setIncludeInsurance] = React.useState(true);
-  const [paymentMethod, setPaymentMethod] = React.useState<'momo' | 'card' | 'bank'>('momo');
+  const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>('momo');
   const [bookingConfirmed, setBookingConfirmed] = React.useState(false);
+  const [bookingId, setBookingId] = React.useState<string | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  // Reset per-open state whenever a different asset is booked, so a second
+  // booking in the same session doesn't reopen showing the previous one's
+  // confirmation screen or a stale error.
+  React.useEffect(() => {
+    setBookingConfirmed(false);
+    setBookingId(null);
+    setError(null);
+    setSubmitting(false);
+  }, [asset]);
+
+  if (!asset) return null;
 
   // Calculate rental duration in days
   const start = new Date(startDate);
@@ -41,9 +63,40 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
   const serviceFee = Math.round(basePrice * 0.05); // 5% Assetify platform fee
   const totalPrice = basePrice + operatorFee + insuranceFee + serviceFee;
 
-  const handleConfirm = (e: React.FormEvent) => {
+  const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
-    setBookingConfirmed(true);
+    setError(null);
+
+    if (!user) {
+      setError('Please sign in to book this asset.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const newBookingId = await createBooking({
+        asset,
+        buyerId: user.uid,
+        startDate,
+        endDate,
+        days,
+        includeOperator,
+        includeInsurance,
+        paymentMethod,
+        basePrice,
+        operatorFee,
+        insuranceFee,
+        serviceFee,
+        totalPrice,
+      });
+      setBookingId(newBookingId);
+      setBookingConfirmed(true);
+    } catch (err) {
+      console.error('Failed to create booking:', err);
+      setError(err instanceof Error ? err.message : 'Failed to create booking. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -225,13 +278,20 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
               </div>
             </div>
 
+            {error && (
+              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-700 dark:text-rose-300">
+                {error}
+              </div>
+            )}
+
             {/* Confirm Submit */}
             <button
               type="submit"
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+              disabled={submitting}
+              className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
-              <span>Confirm & Pay ${totalPrice}</span>
+              <span>{submitting ? 'Booking…' : `Confirm & Pay $${totalPrice}`}</span>
             </button>
 
           </form>
@@ -247,7 +307,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 Booking Request Sent Successfully!
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Booking ref <strong>#ASSETIFY-{Math.floor(100000 + Math.random() * 900000)}</strong>. Owner {asset.owner.name} has been notified and funds are securely held in Assetify Escrow.
+                Booking ref <strong>#ASSETIFY-{(bookingId || '').slice(-6).toUpperCase()}</strong>. Owner {asset.owner.name} has been notified and funds are securely held in Assetify Escrow.
               </p>
             </div>
 

@@ -161,20 +161,46 @@ function snapshotToAssets(snapshot: QuerySnapshot<DocumentData>): Asset[] {
  * Subscribes to every asset listed on the marketplace, newest first.
  * Calls `callback` immediately with the current data and again on every
  * change. Call the returned function to unsubscribe.
+ *
+ * `onError` fires if the subscription itself fails — most commonly a
+ * Firestore security-rules rejection (e.g. the `assets` collection's
+ * "allow read: if true" rule hasn't been applied in the console yet).
+ * Without this, a rejected read fails silently: `callback` simply never
+ * fires again, so the UI just quietly keeps showing whatever it rendered
+ * before (typically nothing live at all) with no error anywhere.
  */
-export function subscribeToAllAssets(callback: (assets: Asset[]) => void): Unsubscribe {
+export function subscribeToAllAssets(
+  callback: (assets: Asset[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
   const assetsQuery = query(collection(db, ASSETS_COLLECTION));
-  return onSnapshot(assetsQuery, (snapshot) => callback(snapshotToAssets(snapshot)));
+  return onSnapshot(
+    assetsQuery,
+    (snapshot) => callback(snapshotToAssets(snapshot)),
+    (error) => {
+      console.error('subscribeToAllAssets failed:', error);
+      onError?.(error);
+    }
+  );
 }
 
 /**
  * Subscribes to only the assets listed by one seller, newest first.
- * Call the returned function to unsubscribe.
+ * Call the returned function to unsubscribe. See `subscribeToAllAssets`
+ * for why `onError` matters.
  */
 export function subscribeToSellerAssets(
   sellerId: string,
-  callback: (assets: Asset[]) => void
+  callback: (assets: Asset[]) => void,
+  onError?: (error: Error) => void
 ): Unsubscribe {
   const assetsQuery = query(collection(db, ASSETS_COLLECTION), where('sellerId', '==', sellerId));
-  return onSnapshot(assetsQuery, (snapshot) => callback(snapshotToAssets(snapshot)));
+  return onSnapshot(
+    assetsQuery,
+    (snapshot) => callback(snapshotToAssets(snapshot)),
+    (error) => {
+      console.error('subscribeToSellerAssets failed:', error);
+      onError?.(error);
+    }
+  );
 }

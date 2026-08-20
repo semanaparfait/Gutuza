@@ -15,6 +15,18 @@ import {
 } from 'lucide-react';
 import { MOCK_ASSETS } from '../data/mockAssets';
 import { useAuth } from '@/context/AuthContext';
+import { subscribeToBuyerBookings, type Booking } from '@/lib/bookingServices';
+
+function formatDateRange(startDate: string, endDate: string): string {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return `${startDate} - ${endDate}`;
+  }
+  const startLabel = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  const endLabel = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  return `${startLabel} - ${endLabel}`;
+}
 
 export const BuyerDashboard: React.FC = () => {
   const { user, profile } = useAuth();
@@ -23,25 +35,25 @@ export const BuyerDashboard: React.FC = () => {
   const avatarUrl = profile?.photoURL || user?.photoURL || '';
   const memberSince = profile?.createdAt ? 'Assetify Member' : 'New Member';
 
-  // Mock active bookings, framed around real listings so the dashboard
-  // doesn't look empty before real booking data exists.
-  const activeBookings = [
-    {
-      id: 'booking-001',
-      asset: MOCK_ASSETS[0],
-      status: 'confirmed' as const,
-      statusLabel: 'Confirmed',
-      dates: 'Aug 22 - Aug 25, 2026',
-    },
-    {
-      id: 'booking-002',
-      asset: MOCK_ASSETS[3],
-      status: 'pending' as const,
-      statusLabel: 'Awaiting Owner Approval',
-      dates: 'Sep 02 - Sep 03, 2026',
-    },
-  ];
+  // Real bookings from Firestore — written by BookingModal when a buyer
+  // confirms a booking. Empty until the buyer has actually booked something.
+  const [bookings, setBookings] = React.useState<Booking[]>([]);
 
+  React.useEffect(() => {
+    if (!user) {
+      setBookings([]);
+      return;
+    }
+    const unsubscribe = subscribeToBuyerBookings(user.uid, setBookings);
+    return () => unsubscribe();
+  }, [user]);
+
+  const activeBookings = bookings.filter((b) => b.status !== 'cancelled');
+  const totalSpent = activeBookings.reduce((sum, b) => sum + b.totalPrice, 0);
+
+  // Saved/wishlist assets aren't backed by a real collection yet — still
+  // seeded from the mock catalog. Flagged as a follow-up, out of scope for
+  // this pass (which focused on wiring up real bookings).
   const savedAssets = [MOCK_ASSETS[2], MOCK_ASSETS[5]];
 
   return (
@@ -123,7 +135,7 @@ export const BuyerDashboard: React.FC = () => {
                 </div>
                 <div className="px-4">
                   <div className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">Total Spent</div>
-                  <div className="text-3xl sm:text-4xl font-black text-emerald-600">$740</div>
+                  <div className="text-3xl sm:text-4xl font-black text-emerald-600">${totalSpent.toLocaleString()}</div>
                 </div>
               </div>
             </div>
@@ -136,61 +148,76 @@ export const BuyerDashboard: React.FC = () => {
                 </h3>
               </div>
 
-              <div className="space-y-3">
-                {activeBookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all group"
+              {activeBookings.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 text-center space-y-3">
+                  <p className="text-sm font-semibold text-slate-500">
+                    You haven&apos;t booked any assets yet.
+                  </p>
+                  <Link
+                    href="/"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition-all active:scale-[0.98]"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                        <img
-                          src={booking.asset.image}
-                          alt={booking.asset.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
+                    <Search className="w-4 h-4" />
+                    Browse the Marketplace
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {activeBookings.map((booking) => (
+                    <div
+                      key={booking.id}
+                      className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                          <img
+                            src={booking.assetSnapshot.image}
+                            alt={booking.assetSnapshot.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-tight line-clamp-1">
+                            {booking.assetSnapshot.title}
+                          </h4>
+
+                          <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{booking.assetSnapshot.location}</span>
+                          </div>
+
+                          <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
+                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{formatDateRange(booking.startDate, booking.endDate)}</span>
+                          </div>
+
+                          <div className="pt-0.5">
+                            {booking.status === 'confirmed' ? (
+                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-[#15803D] text-white shadow-sm">
+                                Confirmed
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border border-amber-500 text-amber-700 bg-amber-50/60">
+                                Awaiting Owner Approval
+                              </span>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-tight line-clamp-1">
-                          {booking.asset.title}
-                        </h4>
-
-                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{booking.asset.location}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{booking.dates}</span>
-                        </div>
-
-                        <div className="pt-0.5">
-                          {booking.status === 'confirmed' ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-[#15803D] text-white shadow-sm">
-                              {booking.statusLabel}
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border border-amber-500 text-amber-700 bg-amber-50/60">
-                              {booking.statusLabel}
-                            </span>
-                          )}
-                        </div>
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <span className="text-sm font-bold text-slate-900">
+                          ${booking.totalPrice.toLocaleString()}
+                        </span>
+                        <button className="p-1.5 rounded-lg text-slate-400 group-hover:text-slate-700 group-hover:bg-slate-100 transition-colors">
+                          <ChevronRight className="w-5 h-5" />
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      <span className="text-sm font-bold text-slate-900">
-                        ${booking.asset.price}/{booking.asset.priceUnit}
-                      </span>
-                      <button className="p-1.5 rounded-lg text-slate-400 group-hover:text-slate-700 group-hover:bg-slate-100 transition-colors">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* SAVED / WISHLIST */}

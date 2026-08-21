@@ -838,16 +838,41 @@ export const AdminDashboard: React.FC = () => {
     return assets.filter((a) => (a.status || "approved") === assetsFilter);
   }, [assets, assetsFilter]);
 
+  const [moderationError, setModerationError] = React.useState<string | null>(null);
+
   const handleModerate = async (
     assetId: string,
     status: "approved" | "rejected",
     rejectionReason?: string,
   ) => {
     setModeratingId(assetId);
+    setModerationError(null);
+
+    // Optimistic local state update — removes approved item from verification queue immediately
+    setAssets((prev) =>
+      prev.map((a) =>
+        a.id === assetId
+          ? {
+              ...a,
+              status,
+              rejectionReason: status === "rejected" ? rejectionReason : undefined,
+            }
+          : a,
+      ),
+    );
+
     try {
       await updateAssetStatus(assetId, status, rejectionReason);
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to update asset status:", err);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      if (errMsg.toLowerCase().includes("permission")) {
+        setModerationError(
+          "Firestore Permission Denied: Your user document in Firestore needs 'role': 'admin' and Firestore Rules must allow admins to update 'assets'. Click below to copy the required rules.",
+        );
+      } else {
+        setModerationError(`Failed to update listing status: ${errMsg}`);
+      }
     } finally {
       setModeratingId(null);
     }
@@ -941,6 +966,9 @@ export const AdminDashboard: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Moderation Error Banner */}
+      {moderationError && <ErrorBanner message={moderationError} />}
 
       {/* Tab Panels */}
       {activeTab === "verification" && (

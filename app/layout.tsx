@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   title: "Assetify | Digital Asset Marketplace",
   description: "Connect asset owners with buyers, renters, and service seekers across Africa. Showcase, sell, rent, or offer underutilized heavy equipment, vehicles, land, and tools.",
   keywords: ["asset marketplace", "equipment rental", "Assetify", "Africa digital marketplace", "machinery rental", "vehicle rental"],
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

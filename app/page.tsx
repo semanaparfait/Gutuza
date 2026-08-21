@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import {
   Building2,
   Search,
@@ -23,13 +24,13 @@ import { Asset, CATEGORIES } from "./data/assetTypes";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { AssetCard } from "./components/AssetCard";
-import { AssetDetailModal } from "./components/AssetDetailModal";
 import { BookingModal } from "./components/BookingModal";
 import { ListAssetModal } from "./components/ListAssetModal";
 import { ChatDrawer, type ChatContext } from "./components/ChatDrawer";
 import { subscribeToApprovedAssets } from "@/lib/assetServices";
 
 export default function Home() {
+  const router = useRouter();
   // Main State — real listings from Firestore, published via the "List an
   // Asset" flow. The marketplace used to merge these with a curated
   // Asset" flow. The marketplace shows only approved Firestore listings;
@@ -102,8 +103,6 @@ export default function Home() {
   // The saved-assets list starts empty until persistent wishlist storage is
   // implemented, so it never refers to a non-existent listing.
   const [savedAssetIds, setSavedAssetIds] = React.useState<string[]>([]);
-  const [selectedAssetForDetail, setSelectedAssetForDetail] =
-    React.useState<Asset | null>(null);
   const [selectedAssetForBooking, setSelectedAssetForBooking] =
     React.useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = React.useState<boolean>(false);
@@ -340,7 +339,7 @@ export default function Home() {
                     asset={asset}
                     isSaved={savedAssetIds.includes(asset.id)}
                     onToggleSave={toggleSaveAsset}
-                    onSelect={(ast) => setSelectedAssetForDetail(ast)}
+                    onSelect={(ast) => router.push(`/asset/${ast.id}`)}
                     onBook={(ast) => setSelectedAssetForBooking(ast)}
                   />
                 ))}
@@ -397,26 +396,6 @@ export default function Home() {
           </section>
         </div>
       </main>
-
-      {/* Global Interactive Modals */}
-      <AssetDetailModal
-        asset={selectedAssetForDetail}
-        onClose={() => setSelectedAssetForDetail(null)}
-        onBook={(ast) => {
-          setSelectedAssetForDetail(null);
-          setSelectedAssetForBooking(ast);
-        }}
-        onChatWithOwner={(asset) => {
-          setSelectedAssetForDetail(null);
-          handleChatWithOwner(asset);
-        }}
-        isSaved={
-          selectedAssetForDetail
-            ? savedAssetIds.includes(selectedAssetForDetail.id)
-            : false
-        }
-        onToggleSave={toggleSaveAsset}
-      />
 
       <BookingModal
         asset={selectedAssetForBooking}

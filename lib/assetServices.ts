@@ -19,6 +19,7 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   updateDoc,
   deleteField,
   onSnapshot,
@@ -34,6 +35,13 @@ import { db } from "./firebase";
 import { Asset } from "../app/data/assetTypes";
 
 const ASSETS_COLLECTION = "assets";
+
+export async function getAssetById(assetId: string): Promise<Asset | null> {
+  const assetSnapshot = await getDoc(doc(db, ASSETS_COLLECTION, assetId));
+  return assetSnapshot.exists()
+    ? normalizeAssetDoc(assetSnapshot.id, assetSnapshot.data())
+    : null;
+}
 
 export type NewAssetInput = Omit<
   Asset,

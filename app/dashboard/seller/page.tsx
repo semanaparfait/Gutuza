@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Asset } from "../../data/assetTypes";
 import { Navbar } from "../../components/Navbar";
 import { SellerDashboard } from "../../components/SellerDashboard";
 import { ListAssetModal } from "../../components/ListAssetModal";
-import { AssetDetailModal } from "../../components/AssetDetailModal";
 import { ChatDrawer } from "../../components/ChatDrawer";
 import { LoadingScreen } from "../../components/LoadingScreen";
 import { useRoleGuard } from "@/lib/useRoleGuard";
@@ -13,10 +13,9 @@ import { subscribeToSellerAssets } from "@/lib/assetServices";
 
 export default function SellerDashboardPage() {
   const { ready, user } = useRoleGuard("seller");
+  const router = useRouter();
 
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [selectedAssetForDetail, setSelectedAssetForDetail] =
-    useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
 
@@ -42,7 +41,7 @@ export default function SellerDashboardPage() {
       <SellerDashboard
         assets={assets}
         onOpenListModal={() => setIsListModalOpen(true)}
-        onSelectAsset={(asset) => setSelectedAssetForDetail(asset)}
+        onSelectAsset={(asset) => router.push(`/asset/${asset.id}`)}
       />
 
       {isListModalOpen && (
@@ -52,21 +51,10 @@ export default function SellerDashboardPage() {
         />
       )}
 
-      {selectedAssetForDetail && (
-        <AssetDetailModal
-          asset={selectedAssetForDetail}
-          onClose={() => setSelectedAssetForDetail(null)}
-          onBook={() => {}}
-          onChatWithOwner={() => setIsChatDrawerOpen(true)}
-          isSaved={false}
-          onToggleSave={() => {}}
-        />
-      )}
-
       <ChatDrawer
         isOpen={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
-        targetOwner="John D."
+        context={null}
       />
     </main>
   );

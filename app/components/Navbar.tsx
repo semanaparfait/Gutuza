@@ -157,13 +157,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="flex items-center gap-2">
                   <Link
                     href="/login"
-                    className="px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
+                    className="px-3.5 py-1.5 bg-green-900 hover:bg-green-600 text-white font-bold text-xs rounded-xl shadow-sm transition-all"
                   >
                     Log In
                   </Link>
                   <Link
                     href="/signup"
-                    className="hidden sm:inline-flex px-3.5 py-1.5 border border-slate-700 hover:border-brand-500 hover:text-brand-400 text-slate-200 font-bold text-xs rounded-xl transition-all"
+                    className="hidden sm:inline-flex px-3.5 py-1.5 border border-slate-700 hover:border-brand-500 font-bold text-xs rounded-xl transition-all"
                   >
                     Sign Up
                   </Link>

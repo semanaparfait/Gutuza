@@ -252,7 +252,7 @@ export default function Home() {
                       setPriceFilterTouched(true);
                       setMaxPrice(Number(e.target.value));
                     }}
-                    className="w-28 accent-[#2BB673]"
+                    className="w-28 accent-[#22543d]"
                   />
                   <span className="font-bold text-slate-900  min-w-[50px]">
                     ${maxPrice.toLocaleString()}
@@ -260,12 +260,12 @@ export default function Home() {
                 </div>
 
                 {/* View Switcher (Grid | List | Map) */}
-                <div className="flex items-center p-1 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center p-1  rounded-xl ">
                   <button
                     onClick={() => setViewMode("grid")}
                     className={`p-2 rounded-lg transition-all ${
                       viewMode === "grid"
-                        ? "bg-white dark:bg-[#192724] text-brand-600 shadow-sm"
+                        ? "bg-white dark:bg-[#22543d] text-white shadow-sm"
                         : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
                     }`}
                     title="Grid View"

@@ -18,7 +18,7 @@ interface AssetDetailModalProps {
   asset: Asset | null;
   onClose: () => void;
   onBook: (asset: Asset) => void;
-  onChatWithOwner: (ownerName: string) => void;
+  onChatWithOwner: (asset: Asset) => void;
   isSaved: boolean;
   onToggleSave: (id: string) => void;
 }
@@ -154,7 +154,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
                 </button>
 
                 <button
-                  onClick={() => onChatWithOwner(asset.owner.name)}
+                  onClick={() => onChatWithOwner(asset)}
                   className="w-full py-2.5 bg-white hover:bg-slate-100 text-[#111a18] font-bold text-xs rounded-xl border border-slate-300 transition-all flex items-center justify-center gap-2"
                 >
                   <MessageSquare className="w-4 h-4 text-emerald-600" />
@@ -217,7 +217,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
             </div>
 
             <button
-              onClick={() => onChatWithOwner(asset.owner.name)}
+              onClick={() => onChatWithOwner(asset)}
               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center gap-2 flex-shrink-0"
             >
               <Phone className="w-3.5 h-3.5" />

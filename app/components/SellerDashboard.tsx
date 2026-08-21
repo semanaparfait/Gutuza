@@ -6,20 +6,33 @@ import {
   Tv,
   Home as HomeIcon,
   Tag,
-  MapPin,
   ChevronRight,
-  ChevronDown,
   PlusCircle,
-  User
+  User,
+  MessageCircle,
+  Clock3,
+  CheckCircle2,
+  XCircle,
 } from 'lucide-react';
 import { Asset } from '../data/mockAssets';
 import { useAuth } from '@/context/AuthContext';
+import { subscribeToSellerConversations, type Conversation } from '@/lib/chatServices';
+import { ChatDrawer } from './ChatDrawer';
 
 interface SellerDashboardProps {
   assets?: Asset[];
   onOpenListModal: () => void;
   onSelectAsset?: (asset: Asset) => void;
 }
+
+const STATUS_META: Record<
+  NonNullable<Asset['status']>,
+  { label: string; icon: React.ElementType; className: string }
+> = {
+  pending: { label: 'Pending Review', icon: Clock3, className: 'bg-amber-100 text-amber-700' },
+  approved: { label: 'Live on Marketplace', icon: CheckCircle2, className: 'bg-emerald-100 text-emerald-700' },
+  rejected: { label: 'Rejected', icon: XCircle, className: 'bg-rose-100 text-rose-700' },
+};
 
 export const SellerDashboard: React.FC<SellerDashboardProps> = ({
   assets = [],
@@ -31,49 +44,32 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
   const avatarUrl = profile?.photoURL || user?.photoURL || '';
 
   const [selectedCategory, setSelectedCategory] = useState<string>('tools');
-  const [viewAllSwaps, setViewAllSwaps] = useState<boolean>(false);
-  const [viewAllWishlist, setViewAllWishlist] = useState<boolean>(false);
 
-  // Mock Active Swaps matching the provided mockup design
-  const activeSwapsData = [
-    {
-      id: 'swap-001',
-      title: 'My Makita Power Drill',
-      location: 'Kigali City',
-      status: 'in_progress',
-      statusLabel: 'Swap In Progress',
-      image: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&w=400&q=80',
-      partner: {
-        name: 'John D.',
-        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
-      },
-    },
-    {
-      id: 'swap-002',
-      title: 'Child Bicycle',
-      location: 'Kigali City',
-      status: 'listed',
-      statusLabel: 'Listed for Swap/Sale',
-      image: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=400&q=80',
-      partner: null,
-      typeLabel: 'for Swap/Sale',
-    },
-  ];
+  // Real breakdown of this seller's own listings by moderation status —
+  // used in place of the "Swaps"/"User Rating" stats that used to sit here
+  // (there's no swap feature or rating system in this app; those were
+  // hardcoded placeholder numbers, not real data).
+  const liveCount = assets.filter((a) => (a.status || 'approved') === 'approved').length;
+  const pendingCount = assets.filter((a) => a.status === 'pending').length;
 
-  // Mock Wishlist & Alerts items matching the design mockup
-  const wishlistData = [
-    {
-      id: 'wish-001',
-      title: 'Mechanic Tools',
-      location: 'Kigali City',
-      tags: [
-        { label: 'Swap', color: 'text-emerald-600' },
-        { label: 'Rent', color: 'text-amber-700' },
-      ],
-      image: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80',
-      typeLabel: 'for Swap/Sale',
-    },
-  ];
+  // MESSAGES — real buyer conversations about this seller's listings.
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversationsError, setConversationsError] = useState<string | null>(null);
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+
+  React.useEffect(() => {
+    if (!user) return;
+    const unsubscribe = subscribeToSellerConversations(
+      user.uid,
+      setConversations,
+      (err) => setConversationsError(
+        err.message.toLowerCase().includes('permission')
+          ? 'Messages aren’t loading — the Firestore security rules for the "conversations" collection may not be applied yet.'
+          : 'Messages aren’t loading right now.'
+      )
+    );
+    return () => unsubscribe();
+  }, [user]);
 
   const categories = [
     { id: 'tools', name: 'Tools', icon: Wrench },
@@ -122,23 +118,21 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
               <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{displayName}</h2>
               <p className="text-sm text-slate-500 font-medium mb-6">{profile?.email || user?.email || 'Seller on Assetify'}</p>
 
-              {/* Profile Metrics Row */}
+              {/* Profile Metrics Row — real breakdown of this seller's own listings */}
               <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-100 pt-4">
-                <div className="px-2">
-                  <div className="text-xl font-extrabold text-slate-900">12</div>
-                  <div className="text-xs font-semibold text-slate-500">Swaps</div>
-                </div>
-
                 <div className="px-2">
                   <div className="text-xl font-extrabold text-slate-900">{assets.length}</div>
                   <div className="text-xs font-semibold text-slate-500">Listings</div>
                 </div>
 
                 <div className="px-2">
-                  <div className="text-xs font-semibold text-slate-500 mb-0.5">User Rating</div>
-                  <div className="text-xl font-black text-emerald-600 flex items-center justify-center gap-1">
-                    4.8
-                  </div>
+                  <div className="text-xl font-extrabold text-emerald-600">{liveCount}</div>
+                  <div className="text-xs font-semibold text-slate-500">Live</div>
+                </div>
+
+                <div className="px-2">
+                  <div className="text-xl font-extrabold text-amber-600">{pendingCount}</div>
+                  <div className="text-xs font-semibold text-slate-500">Pending</div>
                 </div>
               </div>
             </div>
@@ -180,22 +174,22 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
           {/* ================= RIGHT MAIN DASHBOARD CONTENT ================= */}
           <main className="lg:col-span-8 space-y-6">
             
-            {/* Top Summary Metrics Banner */}
+            {/* Top Summary Metrics Banner — real breakdown of this seller's own listings */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
               <div className="grid grid-cols-3 divide-x divide-slate-200 text-center">
                 <div className="px-4">
-                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">12</div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Total Swaps</div>
-                </div>
-
-                <div className="px-4">
                   <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">{assets.length}</div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Active Listings</div>
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Total Listings</div>
                 </div>
 
                 <div className="px-4">
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">User Rating</div>
-                  <div className="text-3xl sm:text-4xl font-black text-emerald-600">4.8</div>
+                  <div className="text-3xl sm:text-4xl font-extrabold text-emerald-600">{liveCount}</div>
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Live on Marketplace</div>
+                </div>
+
+                <div className="px-4">
+                  <div className="text-3xl sm:text-4xl font-extrabold text-amber-600">{pendingCount}</div>
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Pending Review</div>
                 </div>
               </div>
             </div>
@@ -226,30 +220,90 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {assets.map((asset) => (
+                  {assets.map((asset) => {
+                    const meta = STATUS_META[asset.status || 'approved'];
+                    const StatusIcon = meta.icon;
+                    return (
+                      <button
+                        key={asset.id}
+                        onClick={() => onSelectAsset?.(asset)}
+                        className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex items-center gap-4 text-left hover:border-emerald-400 hover:shadow-md transition-all group"
+                      >
+                        <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                          <img
+                            src={asset.image}
+                            alt={asset.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <h4 className="text-sm font-bold text-slate-900 truncate">{asset.title}</h4>
+                          <div className="flex items-center gap-2 text-xs text-slate-500">
+                            <span className="font-semibold text-emerald-600 truncate">{asset.category}</span>
+                            <span>•</span>
+                            <span className="capitalize">{asset.type}</span>
+                          </div>
+                          <div className="text-xs font-bold text-slate-800">
+                            RWF {asset.price.toLocaleString()}
+                            <span className="text-slate-400 font-medium"> / {asset.priceUnit}</span>
+                          </div>
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${meta.className}`}>
+                            <StatusIcon className="w-3 h-3" />
+                            {meta.label}
+                          </span>
+                        </div>
+                        <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0" />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            {/* MESSAGES Section — real buyer conversations, live from Firestore */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h3 className="text-sm sm:text-base font-extrabold uppercase text-slate-800 tracking-wide">
+                  MESSAGES
+                </h3>
+                <span className="text-xs sm:text-sm font-semibold text-slate-500">
+                  {conversations.length} {conversations.length === 1 ? 'conversation' : 'conversations'}
+                </span>
+              </div>
+
+              {conversationsError ? (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs font-semibold text-amber-800">
+                  {conversationsError}
+                </div>
+              ) : conversations.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 text-center">
+                  <p className="text-sm font-semibold text-slate-500">
+                    No buyer messages yet. They&apos;ll show up here as soon as someone reaches out about one of your listings.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {conversations.map((conv) => (
                     <button
-                      key={asset.id}
-                      onClick={() => onSelectAsset?.(asset)}
-                      className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex items-center gap-4 text-left hover:border-emerald-400 hover:shadow-md transition-all group"
+                      key={conv.id}
+                      onClick={() => setActiveConversation(conv)}
+                      className="w-full bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex items-center gap-4 text-left hover:border-emerald-400 hover:shadow-md transition-all group"
                     >
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                        <img
-                          src={asset.image}
-                          alt={asset.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
+                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200 flex items-center justify-center">
+                        {conv.assetImage ? (
+                          <img src={conv.assetImage} alt={conv.assetTitle} className="w-full h-full object-cover" />
+                        ) : (
+                          <MessageCircle className="w-5 h-5 text-slate-400" />
+                        )}
                       </div>
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <h4 className="text-sm font-bold text-slate-900 truncate">{asset.title}</h4>
-                        <div className="flex items-center gap-2 text-xs text-slate-500">
-                          <span className="font-semibold text-emerald-600 truncate">{asset.category}</span>
-                          <span>•</span>
-                          <span className="capitalize">{asset.type}</span>
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-sm font-bold text-slate-900 truncate">{conv.buyerName}</h4>
+                          <span className="text-xs text-slate-400 truncate">on {conv.assetTitle}</span>
                         </div>
-                        <div className="text-xs font-bold text-slate-800">
-                          RWF {asset.price.toLocaleString()}
-                          <span className="text-slate-400 font-medium"> / {asset.priceUnit}</span>
-                        </div>
+                        <p className="text-xs text-slate-500 truncate">
+                          {conv.lastMessage || 'No messages yet'}
+                        </p>
                       </div>
                       <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0" />
                     </button>
@@ -258,168 +312,32 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
               )}
             </section>
 
-            {/* ACTIVE SWAPS Section */}
-            <section className="space-y-4">
-              {/* Section Header */}
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-sm sm:text-base font-extrabold uppercase text-slate-800 tracking-wide">
-                  ACTIVE SWAPS
-                </h3>
-                <button
-                  onClick={() => setViewAllSwaps(!viewAllSwaps)}
-                  className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  <span>View All</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${viewAllSwaps ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
-
-              {/* Active Swaps List */}
-              <div className="space-y-3">
-                {activeSwapsData.map((swap) => (
-                  <div
-                    key={swap.id}
-                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all group"
-                  >
-                    {/* Item Thumbnail & Basic Info */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                        <img
-                          src={swap.image}
-                          alt={swap.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                          {swap.title}
-                        </h4>
-                        
-                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{swap.location}</span>
-                        </div>
-
-                        {/* Status Badge */}
-                        <div className="pt-0.5">
-                          {swap.status === 'in_progress' ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-[#15803D] text-white shadow-sm">
-                              Swap In Progress
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border border-emerald-600 text-emerald-700 bg-emerald-50/40">
-                              Listed for Swap/Sale
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Partner / Arrow Control */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      {swap.partner ? (
-                        <div className="flex items-center gap-2 bg-slate-50 sm:bg-transparent px-3 sm:px-0 py-1.5 sm:py-0 rounded-xl">
-                          <span className="text-slate-400 font-bold text-sm">➡</span>
-                          <div className="w-6 h-6 rounded-full bg-slate-200 overflow-hidden shrink-0 border border-slate-300">
-                            <img src={swap.partner.avatar} alt={swap.partner.name} className="w-full h-full object-cover" />
-                          </div>
-                          <span className="text-xs sm:text-sm font-bold text-slate-800">{swap.partner.name}</span>
-                        </div>
-                      ) : (
-                        <div className="text-xs font-bold">
-                          <span className="text-emerald-600">for Swap</span>
-                          <span className="text-amber-700">/Sale</span>
-                        </div>
-                      )}
-
-                      <button className="p-1.5 rounded-lg text-slate-400 group-hover:text-slate-700 group-hover:bg-slate-100 transition-colors">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* WISHLIST & ALERTS Section */}
-            <section className="space-y-4 pt-2">
-              {/* Section Header */}
-              <div className="flex items-center justify-between px-1">
-                <h3 className="text-sm sm:text-base font-extrabold uppercase text-slate-800 tracking-wide">
-                  WISHLIST & ALERTS
-                </h3>
-                <button
-                  onClick={() => setViewAllWishlist(!viewAllWishlist)}
-                  className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
-                >
-                  <span>View All</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${viewAllWishlist ? 'rotate-180' : ''}`} />
-                </button>
-              </div>
-
-              {/* Wishlist Items List */}
-              <div className="space-y-3">
-                {wishlistData.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all group"
-                  >
-                    {/* Item Thumbnail & Basic Info */}
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                            {item.title}
-                          </h4>
-                          <div className="flex items-center gap-1 text-xs font-bold">
-                            {item.tags.map((t, idx) => (
-                              <React.Fragment key={t.label}>
-                                <span className={t.color}>{t.label}</span>
-                                {idx < item.tags.length - 1 && <span className="text-slate-400">/</span>}
-                              </React.Fragment>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{item.location}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Chevron & Link */}
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      <div className="text-xs font-bold">
-                        <span className="text-emerald-600">for Swap</span>
-                        <span className="text-amber-700">/Sale</span>
-                      </div>
-
-                      <button className="p-1.5 rounded-lg text-slate-400 group-hover:text-slate-700 group-hover:bg-slate-100 transition-colors">
-                        <ChevronRight className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-            </section>
-
           </main>
 
         </div>
 
       </div>
+
+      <ChatDrawer
+        isOpen={!!activeConversation}
+        onClose={() => setActiveConversation(null)}
+        context={
+          activeConversation
+            ? {
+                assetId: activeConversation.assetId,
+                assetTitle: activeConversation.assetTitle,
+                assetImage: activeConversation.assetImage,
+                sellerId: activeConversation.sellerId,
+                sellerName: activeConversation.sellerName,
+              }
+            : null
+        }
+        viewAsBuyer={
+          activeConversation
+            ? { id: activeConversation.buyerId, name: activeConversation.buyerName }
+            : undefined
+        }
+      />
     </div>
   );
 };

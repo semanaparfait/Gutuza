@@ -11,9 +11,8 @@ import {
   ChevronRight,
   Search,
   ShieldCheck,
-  Star,
 } from 'lucide-react';
-import { MOCK_ASSETS } from '../data/mockAssets';
+import type { Asset } from '../data/mockAssets';
 import { useAuth } from '@/context/AuthContext';
 import { subscribeToBuyerBookings, type Booking } from '@/lib/bookingServices';
 
@@ -51,10 +50,12 @@ export const BuyerDashboard: React.FC = () => {
   const activeBookings = bookings.filter((b) => b.status !== 'cancelled');
   const totalSpent = activeBookings.reduce((sum, b) => sum + b.totalPrice, 0);
 
-  // Saved/wishlist assets aren't backed by a real collection yet — still
-  // seeded from the mock catalog. Flagged as a follow-up, out of scope for
-  // this pass (which focused on wiring up real bookings).
-  const savedAssets = [MOCK_ASSETS[2], MOCK_ASSETS[5]];
+  // Saved/wishlist assets aren't backed by a real collection yet — there's
+  // no `savedAssets` Firestore data to read, so this genuinely starts empty
+  // rather than being seeded with sample listings. Saving from the
+  // marketplace isn't wired up to persist anywhere yet either (see the
+  // project notes) — this is a real, honest empty state, not a stand-in.
+  const savedAssets: Asset[] = [];
 
   return (
     <div className="min-h-screen bg-[#f3f4f6] text-slate-800 py-8 px-4 sm:px-6 lg:px-8">
@@ -81,7 +82,7 @@ export const BuyerDashboard: React.FC = () => {
                 Buyer • {memberSince}
               </span>
 
-              <div className="grid grid-cols-3 divide-x divide-slate-200 border-t border-slate-100 pt-4">
+              <div className="grid grid-cols-2 divide-x divide-slate-200 border-t border-slate-100 pt-4">
                 <div className="px-2">
                   <div className="text-xl font-extrabold text-slate-900">{activeBookings.length}</div>
                   <div className="text-xs font-semibold text-slate-500">Bookings</div>
@@ -89,13 +90,6 @@ export const BuyerDashboard: React.FC = () => {
                 <div className="px-2">
                   <div className="text-xl font-extrabold text-slate-900">{savedAssets.length}</div>
                   <div className="text-xs font-semibold text-slate-500">Saved</div>
-                </div>
-                <div className="px-2">
-                  <div className="text-xs font-semibold text-slate-500 mb-0.5">Rating</div>
-                  <div className="text-xl font-black text-emerald-600 flex items-center justify-center gap-1">
-                    <Star className="w-4 h-4 fill-emerald-500 text-emerald-500" />
-                    4.9
-                  </div>
                 </div>
               </div>
             </div>
@@ -235,41 +229,56 @@ export const BuyerDashboard: React.FC = () => {
                 </Link>
               </div>
 
-              <div className="space-y-3">
-                {savedAssets.map((asset) => (
-                  <div
-                    key={asset.id}
-                    className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all group"
+              {savedAssets.length === 0 ? (
+                <div className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 text-center space-y-3">
+                  <p className="text-sm font-semibold text-slate-500">
+                    You haven&apos;t saved any assets yet.
+                  </p>
+                  <Link
+                    href="/"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl transition-all active:scale-[0.98]"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
-                        <img
-                          src={asset.image}
-                          alt={asset.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                      </div>
+                    <Search className="w-4 h-4" />
+                    Browse the Marketplace
+                  </Link>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {savedAssets.map((asset) => (
+                    <div
+                      key={asset.id}
+                      className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-slate-300 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-100 shrink-0 border border-slate-200">
+                          <img
+                            src={asset.image}
+                            alt={asset.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
 
-                      <div className="space-y-1.5">
-                        <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-tight line-clamp-1">
-                          {asset.title}
-                        </h4>
-                        <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                          <span>{asset.location}</span>
+                        <div className="space-y-1.5">
+                          <h4 className="text-base sm:text-lg font-bold text-slate-900 leading-tight line-clamp-1">
+                            {asset.title}
+                          </h4>
+                          <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                            <span>{asset.location}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                      <span className="text-sm font-bold text-slate-900">
-                        ${asset.price}/{asset.priceUnit}
-                      </span>
-                      <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <span className="text-sm font-bold text-slate-900">
+                          ${asset.price}/{asset.priceUnit}
+                        </span>
+                        <Heart className="w-5 h-5 text-rose-500 fill-rose-500" />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
 
             {/* CTA Banner */}

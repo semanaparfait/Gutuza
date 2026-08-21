@@ -36,8 +36,9 @@ export type PaymentMethod = 'momo' | 'card' | 'bank';
 export interface Booking {
   id: string;
   assetId: string;
-  // null when the booked asset predates sellerId (the static MOCK_ASSETS
-  // catalog) rather than being a real Firestore listing.
+  // null when the booked asset predates the sellerId field (e.g. an old
+  // booking made before this field existed) rather than being tied to a
+  // seller-owned Firestore listing.
   sellerId: string | null;
   buyerId: string;
   assetSnapshot: {
@@ -170,4 +171,24 @@ export function subscribeToBuyerBookings(
 ): Unsubscribe {
   const bookingsQuery = query(collection(db, BOOKINGS_COLLECTION), where('buyerId', '==', buyerId));
   return onSnapshot(bookingsQuery, (snapshot) => callback(snapshotToBookings(snapshot)));
+}
+
+/**
+ * Admin-only: every booking made on the platform, newest first. Requires
+ * the Firestore rule granting an admin-role account read access across the
+ * whole `bookings` collection (by default a booking is only readable by
+ * its own buyer/seller) — see project notes / Firestore rules.
+ */
+export function subscribeToAllBookings(
+  callback: (bookings: Booking[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  return onSnapshot(
+    collection(db, BOOKINGS_COLLECTION),
+    (snapshot) => callback(snapshotToBookings(snapshot)),
+    (error) => {
+      console.error('subscribeToAllBookings failed:', error);
+      onError?.(error);
+    }
+  );
 }

@@ -18,6 +18,8 @@
 import {
   addDoc,
   collection,
+  doc,
+  updateDoc,
   onSnapshot,
   query,
   where,
@@ -91,6 +93,11 @@ function normalizeAssetDoc(id: string, data: DocumentData): Asset {
     featured: !!data.featured,
     badge: typeof data.badge === 'string' ? data.badge : undefined,
     sellerId: typeof data.sellerId === 'string' ? data.sellerId : undefined,
+    // Any document written before moderation existed (or anything malformed)
+    // is treated as already-approved, so this change doesn't retroactively
+    // hide listings that were already live under the old, unmoderated flow.
+    status:
+      data.status === 'pending' || data.status === 'rejected' ? data.status : 'approved',
   };
 }
 
@@ -134,10 +141,32 @@ export async function createAssetListing(
     ...input,
     image: photoUrls[0] || '',
     additionalImages: photoUrls.slice(1),
+    // Every new listing starts pending admin review — it will not appear
+    // in `subscribeToApprovedAssets` (the public marketplace) until an
+    // admin approves it via `updateAssetStatus`. Hardcoded here rather
+    // than accepted from `input` so a listing can never be created as
+    // already-approved by a non-admin caller.
+    status: 'pending',
     createdAt: serverTimestamp(),
   });
 
   return docRef.id;
+}
+
+/**
+ * Admin-only: approves or rejects a pending (or previously-decided) asset
+ * listing. Approving makes it visible in the public marketplace via
+ * `subscribeToApprovedAssets`; rejecting keeps it hidden from buyers while
+ * still visible to its seller (with a "Rejected" status) and to admins.
+ */
+export async function updateAssetStatus(
+  assetId: string,
+  status: 'approved' | 'rejected' | 'pending'
+): Promise<void> {
+  await updateDoc(doc(db, ASSETS_COLLECTION, assetId), {
+    status,
+    moderatedAt: serverTimestamp(),
+  });
 }
 
 function snapshotToAssets(snapshot: QuerySnapshot<DocumentData>): Asset[] {
@@ -154,7 +183,7 @@ function snapshotToAssets(snapshot: QuerySnapshot<DocumentData>): Asset[] {
   // composite index).
   withTimestamps.sort((a, b) => b.createdAtMillis - a.createdAtMillis);
 
-  return withTimestamps.map((entry) => entry.asset);
+  return withTimestamps.map((entry) => ({ ...entry.asset, createdAtMillis: entry.createdAtMillis }));
 }
 
 /**
@@ -182,6 +211,23 @@ export function subscribeToAllAssets(
       onError?.(error);
     }
   );
+}
+
+/**
+ * Subscribes to only the assets an admin has approved, newest first — this
+ * is what the public marketplace (`/`) should use, not `subscribeToAllAssets`.
+ * Filters client-side rather than with a Firestore `where("status","==",...)`
+ * clause so that legacy documents with no `status` field at all (written
+ * before moderation existed) still show up as approved instead of silently
+ * vanishing from the grid — see `normalizeAssetDoc`'s default above.
+ */
+export function subscribeToApprovedAssets(
+  callback: (assets: Asset[]) => void,
+  onError?: (error: Error) => void
+): Unsubscribe {
+  return subscribeToAllAssets((assets) => {
+    callback(assets.filter((asset) => asset.status === 'approved'));
+  }, onError);
 }
 
 /**

@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { Asset } from '../data/mockAssets';
 import { useAuth } from '@/context/AuthContext';
-import { createBooking, type PaymentMethod } from '@/lib/bookingServices';
+import { createBooking } from '@/lib/bookingServices';
 
 interface BookingModalProps {
   asset: Asset | null;
@@ -22,32 +22,17 @@ interface BookingModalProps {
 }
 
 export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) => {
-  // All hooks run unconditionally, above any early return — the `if (!asset)`
-  // guard used to sit before these useState calls, which is a React
-  // rules-of-hooks violation (hook count changes across renders as `asset`
-  // toggles between null and a value). Fixed here while rewriting this
-  // handler to write to Firestore.
   const { user } = useAuth();
 
   const [startDate, setStartDate] = React.useState('2026-08-05');
   const [endDate, setEndDate] = React.useState('2026-08-08');
   const [includeOperator, setIncludeOperator] = React.useState(true);
   const [includeInsurance, setIncludeInsurance] = React.useState(true);
-  const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>('momo');
+  const [paymentMethod, setPaymentMethod] = React.useState<'momo' | 'card' | 'bank'>('momo');
   const [bookingConfirmed, setBookingConfirmed] = React.useState(false);
   const [bookingId, setBookingId] = React.useState<string | null>(null);
-  const [submitting, setSubmitting] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
-
-  // Reset per-open state whenever a different asset is booked, so a second
-  // booking in the same session doesn't reopen showing the previous one's
-  // confirmation screen or a stale error.
-  React.useEffect(() => {
-    setBookingConfirmed(false);
-    setBookingId(null);
-    setError(null);
-    setSubmitting(false);
-  }, [asset]);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
 
   if (!asset) return null;
 
@@ -63,18 +48,21 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
   const serviceFee = Math.round(basePrice * 0.05); // 5% Assetify platform fee
   const totalPrice = basePrice + operatorFee + insuranceFee + serviceFee;
 
+  // Writes a real booking document to Firestore instead of just faking a
+  // confirmation screen — this used to set bookingConfirmed=true with no
+  // Firestore write at all, showing a made-up "#ASSETIFY-XXXXXX" reference
+  // and claiming funds were "securely held in escrow" and that SMS/WhatsApp
+  // confirmations were on their way, none of which was actually happening.
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-
     if (!user) {
-      setError('Please sign in to book this asset.');
+      setSubmitError('Please sign in to complete a booking.');
       return;
     }
-
-    setSubmitting(true);
+    setIsSubmitting(true);
+    setSubmitError(null);
     try {
-      const newBookingId = await createBooking({
+      const newId = await createBooking({
         asset,
         buyerId: user.uid,
         startDate,
@@ -89,13 +77,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
         serviceFee,
         totalPrice,
       });
-      setBookingId(newBookingId);
+      setBookingId(newId);
       setBookingConfirmed(true);
     } catch (err) {
-      console.error('Failed to create booking:', err);
-      setError(err instanceof Error ? err.message : 'Failed to create booking. Please try again.');
+      setSubmitError(err instanceof Error ? err.message : 'Could not create this booking.');
     } finally {
-      setSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -278,20 +265,20 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
               </div>
             </div>
 
-            {error && (
-              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs font-semibold text-rose-700 dark:text-rose-300">
-                {error}
+            {submitError && (
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-xl text-xs font-semibold text-rose-700 dark:text-rose-300">
+                {submitError}
               </div>
             )}
 
             {/* Confirm Submit */}
             <button
               type="submit"
-              disabled={submitting}
+              disabled={isSubmitting}
               className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
-              <span>{submitting ? 'Booking…' : `Confirm & Pay $${totalPrice}`}</span>
+              <span>{isSubmitting ? 'Sending Request…' : `Confirm & Pay $${totalPrice}`}</span>
             </button>
 
           </form>
@@ -307,13 +294,13 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 Booking Request Sent Successfully!
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Booking ref <strong>#ASSETIFY-{(bookingId || '').slice(-6).toUpperCase()}</strong>. Owner {asset.owner.name} has been notified and funds are securely held in Assetify Escrow.
+                Booking ref <strong>#{bookingId}</strong>. It&apos;s recorded as pending — the owner, {asset.owner.name}, can confirm it from their seller dashboard.
               </p>
             </div>
 
             <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300">
               <Sparkles className="w-4 h-4 inline mr-1" />
-              You will receive SMS and WhatsApp confirmation on your registered mobile number shortly.
+              You can track this booking&apos;s status from your dashboard at any time.
             </div>
 
             <button

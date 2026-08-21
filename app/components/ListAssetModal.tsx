@@ -15,7 +15,7 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { Asset, CATEGORIES } from '../data/mockAssets';
+// import { Asset, CATEGORIES } from '../data/mockAssets';
 import { useAuth } from '@/context/AuthContext';
 import { uploadAssetPhotos, createAssetListing, NewAssetInput } from '@/lib/assetServices';
 
@@ -49,7 +49,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Machinery');
   const [customCategory, setCustomCategory] = useState('');
-  const [type, setType] = useState<Asset['type']>('Rent');
+  // const [type, setType] = useState<Asset['type']>('Rent');
   const [price, setPrice] = useState('');
   const [priceUnit, setPriceUnit] = useState('day');
   const [location, setLocation] = useState('Kigali, Rwanda');
@@ -74,7 +74,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
     setTitle('');
     setCategory('Machinery');
     setCustomCategory('');
-    setType('Rent');
+    // setType('Rent');
     setPrice('');
     setPriceUnit('day');
     setLocation('Kigali, Rwanda');

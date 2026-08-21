@@ -26,8 +26,8 @@ import { AssetCard } from './components/AssetCard';
 import { AssetDetailModal } from './components/AssetDetailModal';
 import { BookingModal } from './components/BookingModal';
 import { ListAssetModal } from './components/ListAssetModal';
-import { ChatDrawer } from './components/ChatDrawer';
-import { subscribeToAllAssets } from '@/lib/assetServices';
+import { ChatDrawer, type ChatContext } from './components/ChatDrawer';
+import { subscribeToApprovedAssets } from '@/lib/assetServices';
 
 export default function Home() {
   // Main State — real listings from Firestore, published via the "List an
@@ -40,7 +40,7 @@ export default function Home() {
   const [liveAssetsError, setLiveAssetsError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    const unsubscribe = subscribeToAllAssets(
+    const unsubscribe = subscribeToApprovedAssets(
       (assets) => {
         setLiveAssetsError(null);
         setLiveAssets(assets);
@@ -102,7 +102,11 @@ export default function Home() {
   const [selectedAssetForBooking, setSelectedAssetForBooking] = React.useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = React.useState<boolean>(false);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = React.useState<boolean>(false);
-  const [chatTargetOwner, setChatTargetOwner] = React.useState<string>('Jean-Paul Habimana');
+  // The asset/seller a chat is currently about. Null when the drawer is
+  // opened with no specific context (e.g. the navbar's generic message
+  // icon) — ChatDrawer shows a "select an asset" placeholder in that case
+  // rather than a fake conversation.
+  const [chatContext, setChatContext] = React.useState<ChatContext | null>(null);
 
   // Bookmark Toggle Handler
   const toggleSaveAsset = (id: string) => {
@@ -111,9 +115,16 @@ export default function Home() {
     );
   };
 
-  // Chat Trigger
-  const handleChatWithOwner = (ownerName: string) => {
-    setChatTargetOwner(ownerName);
+  // Chat Trigger — opens (or resumes) a real conversation about this
+  // specific asset with its seller.
+  const handleChatWithOwner = (asset: Asset) => {
+    setChatContext({
+      assetId: asset.id,
+      assetTitle: asset.title,
+      assetImage: asset.image,
+      sellerId: asset.sellerId || '',
+      sellerName: asset.owner.name,
+    });
     setIsChatDrawerOpen(true);
   };
 
@@ -160,7 +171,7 @@ export default function Home() {
         savedCount={savedAssetIds.length}
         onOpenListModal={() => setIsListModalOpen(true)}
         onToggleChat={() => setIsChatDrawerOpen(!isChatDrawerOpen)}
-        unreadChatCount={1}
+        unreadChatCount={0}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
       />
@@ -367,9 +378,9 @@ export default function Home() {
           setSelectedAssetForDetail(null);
           setSelectedAssetForBooking(ast);
         }}
-        onChatWithOwner={(owner) => {
+        onChatWithOwner={(asset) => {
           setSelectedAssetForDetail(null);
-          handleChatWithOwner(owner);
+          handleChatWithOwner(asset);
         }}
         isSaved={selectedAssetForDetail ? savedAssetIds.includes(selectedAssetForDetail.id) : false}
         onToggleSave={toggleSaveAsset}
@@ -388,7 +399,7 @@ export default function Home() {
       <ChatDrawer
         isOpen={isChatDrawerOpen}
         onClose={() => setIsChatDrawerOpen(false)}
-        targetOwner={chatTargetOwner}
+        context={chatContext}
       />
 
       {/* Professional Footer */}

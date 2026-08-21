@@ -14,7 +14,7 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-[#07120f]">
+    <main className="min-h-screen bg-slate-50 ">
       <Navbar />
       <AdminDashboard />
     </main>

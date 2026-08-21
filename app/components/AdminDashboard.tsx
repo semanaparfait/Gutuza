@@ -879,30 +879,7 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-6">
-      {/* Admin Header */}
-      <div className="p-6 bg-brand-900 text-white rounded-3xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5 text-white" />
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black font-display">
-              Assetify Admin Console
-            </h1>
-          </div>
-          <p className="text-xs text-slate-400 mt-1.5 max-w-xl">
-            Review and verify new listings before they go live, and oversee
-            every user, booking, and conversation on the platform.
-          </p>
-        </div>
-        <button
-          onClick={() => router.push("/")}
-          className="flex items-center gap-2 px-3.5 py-2 bg-white/10 hover:bg-white/15 text-white text-xs font-bold rounded-xl border border-white/10 shrink-0 transition-colors"
-        >
-          <Building2 className="w-4 h-4 text-brand-400" />
-          Back to Marketplace
-        </button>
-      </div>
+
 
       {/* Metrics Row — real counts, not simulated figures */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

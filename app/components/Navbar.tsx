@@ -58,29 +58,28 @@ export const Navbar: React.FC<NavbarProps> = ({
   const DashboardIcon = profile?.role === "admin" ? ShieldCheck : LayoutDashboard;
 
   return (
-    <header className="sticky top-0 z-40 w-full dark:bg-[#111a18] dark:border-b dark:border-slate-800 dark:shadow-md">
-      {/* Primary Top Header Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
+    <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-18 sm:h-20 gap-3">
 
           {/* Logo & Brand */}
           <div className="flex items-center gap-4 sm:gap-8">
             <Link href="/" className="flex items-center gap-2 group text-left shrink-0">
               <img
-                src="/Logoo.svg"
+                src="/Logo.png"
                 alt="Assetify Logo"
-                className="h-8 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
+                className="h-8 sm:h-24 w-auto object-contain transition-transform group-hover:scale-105"
               />
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1 bg-slate-900/60 p-1 rounded-xl border border-slate-800">
+            <nav className="hidden lg:flex items-center gap-1  p-1 rounded-xl">
               <Link
                 href="/"
                 className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                   isMarketplace
                     ? "bg-green-900 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white hover:bg-slate-800/70"
+                    : "hover:text-white hover:bg-slate-800/70"
                 }`}
               >
                 <Store className="w-3.5 h-3.5" />
@@ -92,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                     isDashboard
                       ? "bg-green-900 text-white shadow-sm"
-                      : "text-slate-300 hover:text-white hover:bg-slate-800/70"
+                      : "hover:text-white hover:bg-slate-800/70"
                   }`}
                 >
                   <DashboardIcon className="w-3.5 h-3.5" />
@@ -114,7 +113,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="relative p-2 sm:p-2.5  rounded-xl transition-colors shrink-0 "
               title="Direct Messages"
             >
-              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
               {unreadChatCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5  font-bold text-[10px] rounded-full flex items-center justify-center">
                   {unreadChatCount}
@@ -135,10 +134,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                       )}
                     </div>
                     <div className="hidden md:flex flex-col text-left">
-                      <span className="text-xs font-bold text-white  transition-colors">
+                      <span className="text-xs font-bold  transition-colors">
                         {profile?.fullName || user.displayName || 'User'}
                       </span>
-                      <span className="text-[10px] font-semibold text-white  uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold  uppercase tracking-wider">
                         {profile?.role || 'Member'}
                       </span>
                     </div>

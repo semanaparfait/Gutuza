@@ -26,7 +26,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Asset } from '../app/data/mockAssets';
+import { Asset } from '../app/data/assetTypes';
 
 const BOOKINGS_COLLECTION = 'bookings';
 

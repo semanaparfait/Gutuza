@@ -105,20 +105,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action Controls */}
           <div className="flex items-center gap-1.5 sm:gap-3">
 
-
-
-            {/* Primary Action: List an Asset Button — sellers only */}
-            {profile?.role === "seller" && (
-              <button
-                onClick={() => onOpenListModal?.()}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5  text-xs font-extrabold rounded-xl shadow-md shadow-brand-600/20 transition-all active:scale-[0.98] shrink-0"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">List an Asset</span>
-                <span className="sm:hidden">List</span>
-              </button>
-            )}
-
             {/* Saved Favorites Trigger */}
             <button
               className="relative p-2 sm:p-2.5  hover:bg-slate-800/80 rounded-xl transition-colors shrink-0"

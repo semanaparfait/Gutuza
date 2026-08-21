@@ -4,9 +4,16 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   User as FirebaseUser,
   onAuthStateChanged,
+  updateProfile as updateFirebaseProfile,
   signOut as fbSignOut,
 } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
 export interface UserProfile {
@@ -14,6 +21,12 @@ export interface UserProfile {
   fullName: string;
   email: string;
   phoneNumber?: string;
+  whatsappNumber?: string;
+  sex?: string;
+  location?: string;
+  bio?: string;
+  companyName?: string;
+  website?: string;
   role: "buyer" | "seller" | "admin";
   photoURL?: string;
   createdAt?: unknown;
@@ -24,6 +37,7 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   logout: () => Promise<void>;
+  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
 }
 
 // Some accounts were created before role naming was standardized to
@@ -49,6 +63,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   logout: async () => {},
+  updateProfile: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -103,8 +118,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setProfile(null);
   };
 
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    if (!user) throw new Error("You must be signed in to update your profile.");
+
+    const { uid: _uid, email: _email, role: _role, createdAt: _createdAt, ...editableFields } = updates;
+    await updateDoc(doc(db, "users", user.uid), editableFields);
+
+    if (updates.fullName !== undefined || updates.photoURL !== undefined) {
+      await updateFirebaseProfile(user, {
+        displayName: updates.fullName ?? user.displayName,
+        photoURL: updates.photoURL ?? user.photoURL,
+      });
+    }
+
+    setProfile((current) => (current ? { ...current, ...updates } : current));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, logout }}>
+    <AuthContext.Provider value={{ user, profile, loading, logout, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );

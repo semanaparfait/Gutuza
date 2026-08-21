@@ -14,7 +14,7 @@ import {
   CheckCircle2,
   XCircle,
 } from 'lucide-react';
-import { Asset } from '../data/mockAssets';
+import { Asset } from '../data/assetTypes';
 import { useAuth } from '@/context/AuthContext';
 import { subscribeToSellerConversations, type Conversation } from '@/lib/chatServices';
 import { ChatDrawer } from './ChatDrawer';
@@ -251,6 +251,12 @@ export const SellerDashboard: React.FC<SellerDashboardProps> = ({
                             <StatusIcon className="w-3 h-3" />
                             {meta.label}
                           </span>
+                          {asset.status === 'rejected' && asset.rejectionReason && (
+                            <p className="text-[11px] text-rose-700 bg-rose-50 border border-rose-100 rounded-lg px-2 py-1 mt-1 leading-snug">
+                              <span className="font-bold">Why: </span>
+                              {asset.rejectionReason}
+                            </p>
+                          )}
                         </div>
                         <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors shrink-0" />
                       </button>

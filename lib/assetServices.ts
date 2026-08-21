@@ -20,6 +20,7 @@ import {
   collection,
   doc,
   updateDoc,
+  deleteField,
   onSnapshot,
   query,
   where,
@@ -30,7 +31,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { Asset } from '../app/data/mockAssets';
+import { Asset } from '../app/data/assetTypes';
 
 const ASSETS_COLLECTION = 'assets';
 
@@ -98,6 +99,7 @@ function normalizeAssetDoc(id: string, data: DocumentData): Asset {
     // hide listings that were already live under the old, unmoderated flow.
     status:
       data.status === 'pending' || data.status === 'rejected' ? data.status : 'approved',
+    rejectionReason: typeof data.rejectionReason === 'string' ? data.rejectionReason : undefined,
   };
 }
 
@@ -158,13 +160,23 @@ export async function createAssetListing(
  * listing. Approving makes it visible in the public marketplace via
  * `subscribeToApprovedAssets`; rejecting keeps it hidden from buyers while
  * still visible to its seller (with a "Rejected" status) and to admins.
+ *
+ * `rejectionReason` is required (in practice) when `status === 'rejected'` —
+ * it's what tells the seller what was wrong with their listing (e.g. an
+ * illegal/prohibited item, misleading info, poor photos) so they understand
+ * why it was declined instead of just seeing a bare "Rejected" badge. It's
+ * stored on the asset document and cleared (via `deleteField()`) whenever a
+ * listing is approved or reset to pending, so an old reason never lingers
+ * and gets shown for an asset that's since gone live.
  */
 export async function updateAssetStatus(
   assetId: string,
-  status: 'approved' | 'rejected' | 'pending'
+  status: 'approved' | 'rejected' | 'pending',
+  rejectionReason?: string
 ): Promise<void> {
   await updateDoc(doc(db, ASSETS_COLLECTION, assetId), {
     status,
+    rejectionReason: status === 'rejected' && rejectionReason ? rejectionReason : deleteField(),
     moderatedAt: serverTimestamp(),
   });
 }

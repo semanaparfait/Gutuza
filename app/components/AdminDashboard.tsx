@@ -26,7 +26,7 @@ import {
   type Conversation,
   type ChatMessage,
 } from "@/lib/chatServices";
-import type { Asset } from "../data/mockAssets";
+import type { Asset } from "../data/assetTypes";
 import type { UserProfile } from "@/context/AuthContext";
 
 type Tab = "verification" | "assets" | "users" | "bookings" | "conversations";
@@ -66,6 +66,98 @@ const ErrorBanner: React.FC<{ message: string }> = ({ message }) => (
     <span>{message}</span>
   </div>
 );
+
+// Common reasons an admin rejects a listing — "Illegal or prohibited item"
+// is deliberately first since that's the most important case to get right.
+// "Other" lets the admin write a specific, free-text explanation instead.
+const REJECTION_REASONS = [
+  "Illegal or prohibited item",
+  "Misleading or inaccurate information",
+  "Poor quality or unclear photos",
+  "Duplicate listing",
+  "Incorrect category, price, or pricing unit",
+  "Other",
+] as const;
+
+const RejectAssetModal: React.FC<{
+  asset: Asset;
+  submitting: boolean;
+  onCancel: () => void;
+  onConfirm: (reason: string) => void;
+}> = ({ asset, submitting, onCancel, onConfirm }) => {
+  const [preset, setPreset] = React.useState<string>(REJECTION_REASONS[0]);
+  const [customReason, setCustomReason] = React.useState("");
+
+  const reason = preset === "Other" ? customReason.trim() : preset;
+  const canSubmit = reason.length > 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      onClick={onCancel}
+    >
+      <div
+        className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div>
+          <h3 className="text-base font-bold text-slate-900">Reject listing</h3>
+          <p className="text-xs text-slate-500 mt-1.5">
+            Tell the seller of <span className="font-bold text-slate-700">&ldquo;{asset.title}&rdquo;</span> what&apos;s
+            wrong so they know why it was declined and, where possible, how to fix it.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          {REJECTION_REASONS.map((r) => (
+            <label
+              key={r}
+              className="flex items-center gap-2.5 text-xs font-semibold text-slate-700 p-2.5 rounded-xl border border-slate-100 hover:bg-slate-50 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="rejection-reason"
+                checked={preset === r}
+                onChange={() => setPreset(r)}
+                className="accent-rose-600"
+              />
+              {r}
+            </label>
+          ))}
+        </div>
+
+        {preset === "Other" && (
+          <textarea
+            autoFocus
+            value={customReason}
+            onChange={(e) => setCustomReason(e.target.value)}
+            rows={3}
+            placeholder="Describe what's wrong with this listing..."
+            className="w-full text-xs rounded-xl border border-slate-200 p-3 focus:outline-none focus:ring-2 focus:ring-rose-500"
+          />
+        )}
+
+        <div className="flex items-center justify-end gap-2 pt-1">
+          <button
+            onClick={onCancel}
+            disabled={submitting}
+            className="px-3.5 py-2 text-xs font-bold text-slate-600 rounded-xl hover:bg-slate-100 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => canSubmit && onConfirm(reason)}
+            disabled={!canSubmit || submitting}
+            className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors"
+          >
+            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+            Reject &amp; Notify Seller
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const TONE_CLASSES: Record<string, { bg: string; icon: string }> = {
   amber: { bg: "bg-amber-50", icon: "text-amber-500" },
@@ -255,6 +347,11 @@ const AssetsTable: React.FC<{
                           <div className="text-slate-400 text-[10px]">
                             {asset.category} • {asset.type}
                           </div>
+                          {status === "rejected" && asset.rejectionReason && (
+                            <div className="text-rose-600 text-[10px] font-semibold mt-0.5 truncate max-w-[220px]">
+                              Reason: {asset.rejectionReason}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -573,6 +670,10 @@ export const AdminDashboard: React.FC = () => {
   const [assetsFilter, setAssetsFilter] = React.useState<AssetFilter>("all");
   const [moderatingId, setModeratingId] = React.useState<string | null>(null);
   const [selectedConversation, setSelectedConversation] = React.useState<Conversation | null>(null);
+  // The asset currently being rejected via the reason modal below — null
+  // means the modal is closed. Reject is never a single click: an admin
+  // must pick or write a reason first, so the seller always learns why.
+  const [rejectingAsset, setRejectingAsset] = React.useState<Asset | null>(null);
 
   React.useEffect(() => {
     const permissionMsg = (err: Error, collectionName: string) =>
@@ -607,15 +708,30 @@ export const AdminDashboard: React.FC = () => {
     return assets.filter((a) => (a.status || "approved") === assetsFilter);
   }, [assets, assetsFilter]);
 
-  const handleModerate = async (assetId: string, status: "approved" | "rejected") => {
+  const handleModerate = async (assetId: string, status: "approved" | "rejected", rejectionReason?: string) => {
     setModeratingId(assetId);
     try {
-      await updateAssetStatus(assetId, status);
+      await updateAssetStatus(assetId, status, rejectionReason);
     } catch (err) {
       console.error("Failed to update asset status:", err);
     } finally {
       setModeratingId(null);
     }
+  };
+
+  // Reject is a two-step flow: clicking "Reject" (from either the
+  // Verification queue or the All Assets table) opens the reason modal
+  // instead of rejecting immediately; the actual status update only
+  // happens once the admin picks/writes a reason and confirms.
+  const handleRequestReject = (assetId: string) => {
+    const asset = assets.find((a) => a.id === assetId);
+    if (asset) setRejectingAsset(asset);
+  };
+
+  const handleConfirmReject = async (reason: string) => {
+    if (!rejectingAsset) return;
+    await handleModerate(rejectingAsset.id, "rejected", reason);
+    setRejectingAsset(null);
   };
 
   const sellerLabel = React.useCallback(
@@ -696,7 +812,7 @@ export const AdminDashboard: React.FC = () => {
           error={assetsError}
           moderatingId={moderatingId}
           onApprove={(id) => handleModerate(id, "approved")}
-          onReject={(id) => handleModerate(id, "rejected")}
+          onReject={handleRequestReject}
           sellerLabel={sellerLabel}
         />
       )}
@@ -709,7 +825,7 @@ export const AdminDashboard: React.FC = () => {
           onFilterChange={setAssetsFilter}
           moderatingId={moderatingId}
           onApprove={(id) => handleModerate(id, "approved")}
-          onReject={(id) => handleModerate(id, "rejected")}
+          onReject={handleRequestReject}
           sellerLabel={sellerLabel}
         />
       )}
@@ -726,6 +842,15 @@ export const AdminDashboard: React.FC = () => {
           error={conversationsError}
           selected={selectedConversation}
           onSelect={setSelectedConversation}
+        />
+      )}
+
+      {rejectingAsset && (
+        <RejectAssetModal
+          asset={rejectingAsset}
+          submitting={moderatingId === rejectingAsset.id}
+          onCancel={() => setRejectingAsset(null)}
+          onConfirm={handleConfirmReject}
         />
       )}
     </div>

@@ -19,7 +19,7 @@ import {
   X
 } from 'lucide-react';
 
-import { Asset, CATEGORIES } from './data/mockAssets';
+import { Asset, CATEGORIES } from './data/assetTypes';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { AssetCard } from './components/AssetCard';
@@ -32,8 +32,8 @@ import { subscribeToApprovedAssets } from '@/lib/assetServices';
 export default function Home() {
   // Main State — real listings from Firestore, published via the "List an
   // Asset" flow. The marketplace used to merge these with a curated
-  // MOCK_ASSETS catalog so it never looked empty for a brand-new project;
-  // per request, it now shows only real data — an empty catalog renders its
+    // Asset" flow. The marketplace shows only approved Firestore listings;
+    // an empty catalog renders its
   // own "No Assets Listed Yet" state below instead of falling back to
   // sample listings.
   const [liveAssets, setLiveAssets] = React.useState<Asset[]>([]);
@@ -70,7 +70,7 @@ export default function Home() {
   const [viewMode, setViewMode] = React.useState<'grid' | 'list' | 'map'>('grid');
 
   // The "Max Rate" slider was previously hardcoded to a 50–3000 range sized
-  // for the old MOCK_ASSETS catalog's USD-scale prices ($50–$3000). Real
+    // for the old USD-scale prices ($50–$3000). Real
   // listings are priced in RWF (a modest listing defaults to 25,000 if left
   // blank), so a hardcoded max of 3000 would silently filter out every real
   // listing whose raw price number exceeds it — the asset would still be in
@@ -95,7 +95,9 @@ export default function Home() {
 
   // Modals & Drawers State
   // Previously seeded with 'assetify-001', a MOCK_ASSETS id — now that the
-  // mock catalog is gone from this page, that id would never match a real
+    // asset, so it starts empty instead of silently doing nothing.
+    // The saved-assets list starts empty until persistent wishlist storage is
+    // implemented, so it never refers to a non-existent listing.
   // asset, so it starts empty instead of silently doing nothing.
   const [savedAssetIds, setSavedAssetIds] = React.useState<string[]>([]);
   const [selectedAssetForDetail, setSelectedAssetForDetail] = React.useState<Asset | null>(null);

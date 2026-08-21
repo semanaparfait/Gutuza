@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Asset } from '../../data/mockAssets';
+import { Asset } from '../../data/assetTypes';
 import { Navbar } from '../../components/Navbar';
 import { SellerDashboard } from '../../components/SellerDashboard';
 import { ListAssetModal } from '../../components/ListAssetModal';

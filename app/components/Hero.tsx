@@ -16,7 +16,7 @@ import {
   Briefcase,
   LayoutGrid
 } from 'lucide-react';
-import { CATEGORIES } from '../data/mockAssets';
+import { CATEGORIES } from '../data/assetTypes';
 
 interface HeroProps {
   selectedCategory: string;

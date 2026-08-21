@@ -28,26 +28,15 @@ export interface Asset {
   availability: string;
   featured: boolean;
   badge?: string;
-  // Present on assets created through the "List an Asset" flow and stored
-  // in Firestore — the uid of the seller who owns this listing.
   sellerId?: string;
-  // Admin moderation state. New listings are created as 'pending' and only
-  // appear in the public marketplace once an admin approves them. Absent
-  // on any Firestore document written before this field existed — treated
-  // as 'approved' by the data layer for backward compatibility.
   status?: 'pending' | 'approved' | 'rejected';
-  // When this asset was created, as epoch milliseconds — populated for
-  // Firestore-backed listings (used by the Admin Console to show "Submitted
-  // 2h ago").
+  // Set by an admin when rejecting a listing (e.g. an illegal or prohibited
+  // item, misleading info, poor photos). Shown to the seller on their
+  // dashboard so they know what to fix or why the listing was declined.
+  // Cleared automatically if the listing is later approved or reset to pending.
+  rejectionReason?: string;
   createdAtMillis?: number;
 }
-
-// This file used to also export a MOCK_ASSETS array of sample listings for
-// local development/demo purposes. It's been removed now that every part
-// of the app reads real listings from Firestore (see lib/assetServices.ts)
-// — keeping fake listings around risked them being mistaken for real data.
-// The Asset interface and CATEGORIES taxonomy below are real/structural
-// and still used throughout the app.
 
 export const CATEGORIES = [
   { name: 'All Categories', icon: 'LayoutGrid', slug: 'all' },
@@ -57,5 +46,5 @@ export const CATEGORIES = [
   { name: 'Real Estate', icon: 'Building2', slug: 'Real Estate' },
   { name: 'Energy', icon: 'Zap', slug: 'Energy' },
   { name: 'Tools', icon: 'Wrench', slug: 'Tools' },
-  { name: 'Services', icon: 'Briefcase', slug: 'Services' }
+  { name: 'Services', icon: 'Briefcase', slug: 'Services' },
 ];

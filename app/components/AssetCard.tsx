@@ -9,7 +9,7 @@ import {
   ArrowRight,
   Eye
 } from 'lucide-react';
-import { Asset } from '../data/mockAssets';
+import { Asset } from '../data/assetTypes';
 
 interface AssetCardProps {
   asset: Asset;
@@ -64,7 +64,7 @@ export const AssetCard: React.FC<AssetCardProps> = ({
             e.stopPropagation();
             onToggleSave(asset.id);
           }}
-          className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
+          className={`hidden absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all ${
             isSaved 
               ? 'bg-rose-500 text-black shadow-md' 
               : 'bg-[#111a18]/60 text-black hover:bg-[#111a18]'
@@ -90,9 +90,9 @@ export const AssetCard: React.FC<AssetCardProps> = ({
               {asset.category}
             </span>
             <div className="flex items-center gap-1 font-semibold text-amber-500">
-              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-              <span className="text-[#111a18] dark:text-black font-bold">{asset.rating}</span>
-              <span className="text-slate-400 text-[10px]">({asset.reviewsCount})</span>
+              <Star className="w-3.5 h-3.5 hidden fill-amber-400 text-amber-400" />
+              <span className="text-[#111a18] hidden dark:text-black font-bold">{asset.rating}</span>
+              <span className="text-slate-400  hidden text-[10px]">({asset.reviewsCount})</span>
             </div>
           </div>
 

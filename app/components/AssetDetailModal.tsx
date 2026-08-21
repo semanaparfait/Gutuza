@@ -12,7 +12,7 @@ import {
   MessageSquare, 
   Heart
 } from 'lucide-react';
-import { Asset } from '../data/mockAssets';
+import { Asset } from '../data/assetTypes';
 
 interface AssetDetailModalProps {
   asset: Asset | null;

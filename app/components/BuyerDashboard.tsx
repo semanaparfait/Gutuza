@@ -12,7 +12,7 @@ import {
   Search,
   ShieldCheck,
 } from 'lucide-react';
-import type { Asset } from '../data/mockAssets';
+import type { Asset } from '../data/assetTypes';
 import { useAuth } from '@/context/AuthContext';
 import { subscribeToBuyerBookings, type Booking } from '@/lib/bookingServices';
 

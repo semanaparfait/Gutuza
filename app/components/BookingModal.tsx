@@ -12,7 +12,7 @@ import {
   Truck,
   UserCheck
 } from 'lucide-react';
-import { Asset } from '../data/mockAssets';
+import { Asset } from '../data/assetTypes';
 import { useAuth } from '@/context/AuthContext';
 import { createBooking } from '@/lib/bookingServices';
 

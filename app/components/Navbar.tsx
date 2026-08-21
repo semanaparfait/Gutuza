@@ -58,7 +58,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const DashboardIcon = profile?.role === "admin" ? ShieldCheck : LayoutDashboard;
 
   return (
-    <header className="sticky top-0 z-40 w-full    shadow-md">
+    <header className="sticky top-0 z-40 w-full dark:bg-[#111a18] dark:border-b dark:border-slate-800 dark:shadow-md">
       {/* Primary Top Header Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
@@ -159,10 +159,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                       )}
                     </div>
                     <div className="hidden md:flex flex-col text-left">
-                      <span className="text-xs font-bold  transition-colors">
+                      <span className="text-xs font-bold text-white  transition-colors">
                         {profile?.fullName || user.displayName || 'User'}
                       </span>
-                      <span className="text-[10px] font-semibold  uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold text-white  uppercase tracking-wider">
                         {profile?.role || 'Member'}
                       </span>
                     </div>

@@ -106,25 +106,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-3">
 
             {/* Saved Favorites Trigger */}
-            <button
-              className="relative p-2 sm:p-2.5  hover:bg-slate-800/80 rounded-xl transition-colors shrink-0"
-              title="Saved Assets"
-            >
-              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
-              {savedCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-rose-500 text-white font-bold text-[10px] rounded-full flex items-center justify-center">
-                  {savedCount}
-                </span>
-              )}
-            </button>
+
 
             {/* Direct Messages Chat Trigger */}
             <button
               onClick={() => onToggleChat?.()}
-              className="relative p-2 sm:p-2.5  rounded-xl transition-colors shrink-0"
+              className="relative p-2 sm:p-2.5  rounded-xl transition-colors shrink-0 "
               title="Direct Messages"
             >
-              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+              <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               {unreadChatCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5  font-bold text-[10px] rounded-full flex items-center justify-center">
                   {unreadChatCount}

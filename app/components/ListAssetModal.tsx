@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 import {
   X,
   Plus,
@@ -14,10 +14,14 @@ import {
   ImagePlus,
   AlertCircle,
   Loader2,
-} from 'lucide-react';
-import { Asset, CATEGORIES } from '../data/assetTypes';
-import { useAuth } from '@/context/AuthContext';
-import { uploadAssetPhotos, createAssetListing, NewAssetInput } from '@/lib/assetServices';
+} from "lucide-react";
+import { Asset, CATEGORIES } from "../data/assetTypes";
+import { useAuth } from "@/context/AuthContext";
+import {
+  uploadAssetPhotos,
+  createAssetListing,
+  NewAssetInput,
+} from "@/lib/assetServices";
 
 interface ListAssetModalProps {
   isOpen: boolean;
@@ -31,7 +35,10 @@ interface PendingPhoto {
 
 const MAX_PHOTOS = 5;
 
-const SectionHeading: React.FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+const SectionHeading: React.FC<{
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ icon, children }) => (
   <div className="flex items-center gap-2 pb-2 mb-1 border-b border-slate-200 dark:border-slate-800">
     <span className="text-emerald-600 dark:text-emerald-400">{icon}</span>
     <h4 className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 dark:text-slate-400">
@@ -46,16 +53,16 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
 }) => {
   const { user, profile } = useAuth();
 
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Machinery');
-  const [customCategory, setCustomCategory] = useState('');
-  const [type, setType] = useState<Asset['type']>('Rent');
-  const [price, setPrice] = useState('');
-  const [priceUnit, setPriceUnit] = useState('day');
-  const [location, setLocation] = useState('Kigali, Rwanda');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [category, setCategory] = useState("Machinery");
+  const [customCategory, setCustomCategory] = useState("");
+  const [type, setType] = useState<Asset["type"]>("Rent");
+  const [price, setPrice] = useState("");
+  const [priceUnit, setPriceUnit] = useState("day");
+  const [location, setLocation] = useState("Kigali, Rwanda");
+  const [description, setDescription] = useState("");
   const [photos, setPhotos] = useState<PendingPhoto[]>([]);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -71,16 +78,16 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
   // the last listing's data or success screen.
   const resetForm = () => {
     photosRef.current.forEach((p) => URL.revokeObjectURL(p.previewUrl));
-    setTitle('');
-    setCategory('Machinery');
-    setCustomCategory('');
-    setType('Rent');
-    setPrice('');
-    setPriceUnit('day');
-    setLocation('Kigali, Rwanda');
-    setDescription('');
+    setTitle("");
+    setCategory("Machinery");
+    setCustomCategory("");
+    setType("Rent");
+    setPrice("");
+    setPriceUnit("day");
+    setLocation("Kigali, Rwanda");
+    setDescription("");
     setPhotos([]);
-    setError('');
+    setError("");
     setSuccess(false);
     setSubmitting(false);
   };
@@ -100,16 +107,16 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleTypeChange = (value: Asset['type']) => {
+  const handleTypeChange = (value: Asset["type"]) => {
     setType(value);
-    if (value === 'Sale') setPriceUnit('total');
-    else if (value === 'Service') setPriceUnit('project');
-    else setPriceUnit('day');
+    if (value === "Sale") setPriceUnit("total");
+    else if (value === "Service") setPriceUnit("project");
+    else setPriceUnit("day");
   };
 
   const handleFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    e.target.value = ''; // allow re-selecting the same file later
+    e.target.value = ""; // allow re-selecting the same file later
     if (!files.length) return;
 
     const room = MAX_PHOTOS - photos.length;
@@ -117,7 +124,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
       file,
       previewUrl: URL.createObjectURL(file),
     }));
-    if (toAdd.length) setError('');
+    if (toAdd.length) setError("");
     setPhotos((prev) => [...prev, ...toAdd]);
   };
 
@@ -133,37 +140,42 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
     e.preventDefault();
 
     if (!user) {
-      setError('You must be signed in as a seller to list an asset.');
+      setError("You must be signed in as a seller to list an asset.");
       return;
     }
 
     if (photos.length === 0) {
-      setError('Add at least one photo of your asset.');
+      setError("Add at least one photo of your asset.");
       return;
     }
 
-    const finalCategory = category === 'Other' ? customCategory.trim() : category;
-    if (category === 'Other' && !finalCategory) {
-      setError('Enter a category name.');
+    const finalCategory =
+      category === "Other" ? customCategory.trim() : category;
+    if (category === "Other" && !finalCategory) {
+      setError("Enter a category name.");
       return;
     }
 
-    setError('');
+    setError("");
     setSubmitting(true);
 
-    const sellerName = profile?.fullName || user.displayName || 'Assetify Seller';
+    const sellerName =
+      profile?.fullName || user.displayName || "Assetify Seller";
 
     let photoUrls: string[];
     try {
       const idToken = await user.getIdToken();
-      photoUrls = await uploadAssetPhotos(idToken, photos.map((p) => p.file));
+      photoUrls = await uploadAssetPhotos(
+        idToken,
+        photos.map((p) => p.file),
+      );
     } catch (err) {
-      console.error('Failed to upload photos:', err);
-      const detail = err instanceof Error ? err.message : '';
+      console.error("Failed to upload photos:", err);
+      const detail = err instanceof Error ? err.message : "";
       setError(
         detail
           ? `Could not upload your photos: ${detail}`
-          : 'Could not upload your photos. Check that the Cloudflare R2 environment variables are set on the server, then try again.'
+          : "Could not upload your photos. Check that the Cloudflare R2 environment variables are set on the server, then try again.",
       );
       setSubmitting(false);
       return;
@@ -172,30 +184,35 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
     try {
       const input: NewAssetInput = {
         sellerId: user.uid,
-        title: title || 'New Equipment Asset',
+        title: title || "New Equipment Asset",
         category: finalCategory,
         type,
         price: parseFloat(price) || 25000,
         priceUnit,
-        location: location.split(',')[0]?.trim() || 'Kigali',
-        country: location.split(',')[1]?.trim() || 'Rwanda',
+        location: location.split(",")[0]?.trim() || "Kigali",
+        country: location.split(",")[1]?.trim() || "Rwanda",
         rating: 5.0,
         reviewsCount: 1,
-        description: description || 'High performance asset available for verified instant booking.',
+        description:
+          description ||
+          "High performance asset available for verified instant booking.",
         specifications: {
-          "Condition": "Excellent / Inspected",
-          "Availability": "Immediate",
-          "Verification": "Assetify Verified"
+          Condition: "Excellent / Inspected",
+          Availability: "Immediate",
+          Verification: "Assetify Verified",
         },
         owner: {
           name: sellerName,
           company: sellerName,
-          avatar: profile?.photoURL || user.photoURL || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+          avatar:
+            profile?.photoURL ||
+            user.photoURL ||
+            "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
           rating: 5.0,
           verified: true,
           phone: profile?.phoneNumber || "+250 788 100 200",
           responseTime: "< 5 mins",
-          memberSince: "Today"
+          memberSince: "Today",
         },
         availability: "Immediate",
         featured: true,
@@ -206,9 +223,9 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
 
       setSuccess(true);
     } catch (err) {
-      console.error('Failed to save listing:', err);
+      console.error("Failed to save listing:", err);
       setError(
-        'Your photos uploaded, but saving the listing failed — this usually means the Firestore security rules for the "assets" collection aren’t set yet. Please try again.'
+        'Your photos uploaded, but saving the listing failed — this usually means the Firestore security rules for the "assets" collection aren’t set yet. Please try again.',
       );
     } finally {
       setSubmitting(false);
@@ -218,24 +235,31 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
       <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8">
-
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 text-white border-b border-slate-800">
           <div className="flex items-center gap-2">
             <Plus className="w-5 h-5 text-emerald-400" />
             <h3 className="text-base font-bold">List Your Asset on Assetify</h3>
           </div>
-          <button onClick={handleClose} className="p-1.5 text-slate-400 hover:text-white rounded-full disabled:opacity-40" disabled={submitting}>
+          <button
+            onClick={handleClose}
+            className="p-1.5 text-slate-400 hover:text-white rounded-full disabled:opacity-40"
+            disabled={submitting}
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {!success ? (
-          <form onSubmit={handleSubmit} className="p-6 space-y-7 max-h-[75vh] overflow-y-auto">
-
+          <form
+            onSubmit={handleSubmit}
+            className="p-6 space-y-7 max-h-[75vh] overflow-y-auto"
+          >
             {/* ===== Basic Details ===== */}
             <div className="space-y-4">
-              <SectionHeading icon={<Tag className="w-3.5 h-3.5" />}>Basic Details</SectionHeading>
+              <SectionHeading icon={<Tag className="w-3.5 h-3.5" />}>
+                Basic Details
+              </SectionHeading>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -261,12 +285,14 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full px-3 py-2.5 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                   >
-                    {CATEGORIES.filter(c => c.slug !== 'all').map(c => (
-                      <option key={c.slug} value={c.slug}>{c.name}</option>
+                    {CATEGORIES.filter((c) => c.slug !== "all").map((c) => (
+                      <option key={c.slug} value={c.slug}>
+                        {c.name}
+                      </option>
                     ))}
                     <option value="Other">Other (specify)</option>
                   </select>
-                  {category === 'Other' && (
+                  {category === "Other" && (
                     <input
                       type="text"
                       value={customCategory}
@@ -284,7 +310,9 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                   </label>
                   <select
                     value={type}
-                    onChange={(e) => handleTypeChange(e.target.value as Asset['type'])}
+                    onChange={(e) =>
+                      handleTypeChange(e.target.value as Asset["type"])
+                    }
                     className="w-full px-3 py-2.5 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
                   >
                     <option value="Rent">For Rent</option>
@@ -297,9 +325,13 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
 
             {/* ===== Pricing ===== */}
             <div className="space-y-3">
-              <SectionHeading icon={<DollarSign className="w-3.5 h-3.5" />}>Pricing</SectionHeading>
+              <SectionHeading icon={<DollarSign className="w-3.5 h-3.5" />}>
+                Pricing
+              </SectionHeading>
 
-              <div className={`grid gap-4 ${type === 'Rent' ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              <div
+                className={`grid gap-4 ${type === "Rent" ? "grid-cols-2" : "grid-cols-1"}`}
+              >
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                     Price (RWF) *
@@ -320,7 +352,7 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                   </div>
                 </div>
 
-                {type === 'Rent' && (
+                {type === "Rent" && (
                   <div>
                     <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                       Billing Period *
@@ -339,18 +371,20 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                 )}
               </div>
 
-              {type !== 'Rent' && (
+              {type !== "Rent" && (
                 <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                  {type === 'Sale'
-                    ? 'Listed as a one-time sale price.'
-                    : 'Listed as a fixed price for the whole project.'}
+                  {type === "Sale"
+                    ? "Listed as a one-time sale price."
+                    : "Listed as a fixed price for the whole project."}
                 </p>
               )}
             </div>
 
             {/* ===== Photos ===== */}
             <div className="space-y-3">
-              <SectionHeading icon={<ImagePlus className="w-3.5 h-3.5" />}>Photos</SectionHeading>
+              <SectionHeading icon={<ImagePlus className="w-3.5 h-3.5" />}>
+                Photos
+              </SectionHeading>
 
               <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
                 {photos.map((photo, index) => (
@@ -358,7 +392,11 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                     key={photo.previewUrl}
                     className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 group"
                   >
-                    <img src={photo.previewUrl} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+                    <img
+                      src={photo.previewUrl}
+                      alt={`Upload ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                     {index === 0 && (
                       <span className="absolute bottom-1 left-1 px-1.5 py-0.5 bg-emerald-600 text-white text-[9px] font-bold rounded-md">
                         Cover
@@ -379,7 +417,9 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                 {photos.length < MAX_PHOTOS && (
                   <label className="aspect-square rounded-xl border-2 border-dashed border-slate-300 dark:border-slate-700 flex flex-col items-center justify-center gap-1 text-slate-400 hover:border-emerald-500 hover:text-emerald-500 dark:hover:text-emerald-400 cursor-pointer transition-colors">
                     <Upload className="w-5 h-5" />
-                    <span className="text-[9px] font-bold text-center px-1">Add Photo</span>
+                    <span className="text-[9px] font-bold text-center px-1">
+                      Add Photo
+                    </span>
                     <input
                       type="file"
                       accept="image/*"
@@ -393,13 +433,16 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
               </div>
 
               <p className="text-[10px] text-slate-400 dark:text-slate-500">
-                {photos.length}/{MAX_PHOTOS} photos added. The first photo becomes the cover image.
+                {photos.length}/{MAX_PHOTOS} photos added. The first photo
+                becomes the cover image.
               </p>
             </div>
 
             {/* ===== Location & Description ===== */}
             <div className="space-y-4">
-              <SectionHeading icon={<FileText className="w-3.5 h-3.5" />}>Location & Description</SectionHeading>
+              <SectionHeading icon={<FileText className="w-3.5 h-3.5" />}>
+                Location & Description
+              </SectionHeading>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1 flex items-center gap-1">
@@ -456,7 +499,6 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
                 </>
               )}
             </button>
-
           </form>
         ) : (
           /* Success Screen */
@@ -468,7 +510,8 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
               Listing Published Successfully!
             </h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Your asset is now discoverable across Africa. Customers can search, view specifications, and place booking orders directly.
+              Your asset is now discoverable across Africa. Customers can
+              search, view specifications, and place booking orders directly.
             </p>
             <button
               onClick={handleClose}
@@ -478,7 +521,6 @@ export const ListAssetModal: React.FC<ListAssetModalProps> = ({
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

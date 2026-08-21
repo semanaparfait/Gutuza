@@ -29,35 +29,39 @@ import {
   type QuerySnapshot,
   type DocumentData,
   type Unsubscribe,
-} from 'firebase/firestore';
-import { db } from './firebase';
-import { Asset } from '../app/data/assetTypes';
+} from "firebase/firestore";
+import { db } from "./firebase";
+import { Asset } from "../app/data/assetTypes";
 
-const ASSETS_COLLECTION = 'assets';
+const ASSETS_COLLECTION = "assets";
 
-export type NewAssetInput = Omit<Asset, 'id' | 'image' | 'additionalImages' | 'sellerId'> & {
+export type NewAssetInput = Omit<
+  Asset,
+  "id" | "image" | "additionalImages" | "sellerId"
+> & {
   sellerId: string;
 };
 
 // Generic gray "no image" placeholder — used whenever a Firestore asset
 // document is missing its cover photo.
 const PLACEHOLDER_IMAGE =
-  'data:image/svg+xml;utf8,' +
+  "data:image/svg+xml;utf8," +
   encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300">' +
       '<rect width="100%" height="100%" fill="#e2e8f0"/>' +
       '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#94a3b8">No Image</text>' +
-      '</svg>'
+      "</svg>",
   );
 
-const DEFAULT_OWNER: Asset['owner'] = {
-  name: 'Assetify Seller',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+const DEFAULT_OWNER: Asset["owner"] = {
+  name: "Assetify Seller",
+  avatar:
+    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
   rating: 5.0,
   verified: false,
-  phone: '',
-  responseTime: 'N/A',
-  memberSince: 'Recently',
+  phone: "",
+  responseTime: "N/A",
+  memberSince: "Recently",
 };
 
 /**
@@ -69,37 +73,67 @@ const DEFAULT_OWNER: Asset['owner'] = {
  */
 function normalizeAssetDoc(id: string, data: DocumentData): Asset {
   const owner =
-    data.owner && typeof data.owner === 'object'
+    data.owner && typeof data.owner === "object"
       ? { ...DEFAULT_OWNER, ...data.owner }
       : DEFAULT_OWNER;
 
   return {
     id,
-    title: typeof data.title === 'string' && data.title ? data.title : 'Untitled Asset',
-    category: typeof data.category === 'string' && data.category ? data.category : 'General',
-    type: data.type === 'Sale' || data.type === 'Service' ? data.type : 'Rent',
-    price: typeof data.price === 'number' ? data.price : 0,
-    priceUnit: typeof data.priceUnit === 'string' && data.priceUnit ? data.priceUnit : 'day',
-    location: typeof data.location === 'string' && data.location ? data.location : 'Kigali',
-    country: typeof data.country === 'string' && data.country ? data.country : 'Rwanda',
-    rating: typeof data.rating === 'number' ? data.rating : 5.0,
-    reviewsCount: typeof data.reviewsCount === 'number' ? data.reviewsCount : 0,
-    image: typeof data.image === 'string' && data.image ? data.image : PLACEHOLDER_IMAGE,
-    additionalImages: Array.isArray(data.additionalImages) ? data.additionalImages : [],
-    description: typeof data.description === 'string' ? data.description : '',
+    title:
+      typeof data.title === "string" && data.title
+        ? data.title
+        : "Untitled Asset",
+    category:
+      typeof data.category === "string" && data.category
+        ? data.category
+        : "General",
+    type: data.type === "Sale" || data.type === "Service" ? data.type : "Rent",
+    price: typeof data.price === "number" ? data.price : 0,
+    priceUnit:
+      typeof data.priceUnit === "string" && data.priceUnit
+        ? data.priceUnit
+        : "day",
+    location:
+      typeof data.location === "string" && data.location
+        ? data.location
+        : "Kigali",
+    country:
+      typeof data.country === "string" && data.country
+        ? data.country
+        : "Rwanda",
+    rating: typeof data.rating === "number" ? data.rating : 5.0,
+    reviewsCount: typeof data.reviewsCount === "number" ? data.reviewsCount : 0,
+    image:
+      typeof data.image === "string" && data.image
+        ? data.image
+        : PLACEHOLDER_IMAGE,
+    additionalImages: Array.isArray(data.additionalImages)
+      ? data.additionalImages
+      : [],
+    description: typeof data.description === "string" ? data.description : "",
     specifications:
-      data.specifications && typeof data.specifications === 'object' ? data.specifications : {},
+      data.specifications && typeof data.specifications === "object"
+        ? data.specifications
+        : {},
     owner,
-    availability: typeof data.availability === 'string' && data.availability ? data.availability : 'Immediate',
+    availability:
+      typeof data.availability === "string" && data.availability
+        ? data.availability
+        : "Immediate",
     featured: !!data.featured,
-    badge: typeof data.badge === 'string' ? data.badge : undefined,
-    sellerId: typeof data.sellerId === 'string' ? data.sellerId : undefined,
+    badge: typeof data.badge === "string" ? data.badge : undefined,
+    sellerId: typeof data.sellerId === "string" ? data.sellerId : undefined,
     // Any document written before moderation existed (or anything malformed)
     // is treated as already-approved, so this change doesn't retroactively
     // hide listings that were already live under the old, unmoderated flow.
     status:
-      data.status === 'pending' || data.status === 'rejected' ? data.status : 'approved',
-    rejectionReason: typeof data.rejectionReason === 'string' ? data.rejectionReason : undefined,
+      data.status === "pending" || data.status === "rejected"
+        ? data.status
+        : "approved",
+    rejectionReason:
+      typeof data.rejectionReason === "string"
+        ? data.rejectionReason
+        : undefined,
   };
 }
 
@@ -112,12 +146,15 @@ function normalizeAssetDoc(id: string, data: DocumentData): Asset {
  * `await user.getIdToken()`) — the API route verifies it server-side
  * before uploading anything, so only a signed-in seller can call this.
  */
-export async function uploadAssetPhotos(idToken: string, files: File[]): Promise<string[]> {
+export async function uploadAssetPhotos(
+  idToken: string,
+  files: File[],
+): Promise<string[]> {
   const formData = new FormData();
-  files.forEach((file) => formData.append('files', file));
+  files.forEach((file) => formData.append("files", file));
 
-  const res = await fetch('/api/upload', {
-    method: 'POST',
+  const res = await fetch("/api/upload", {
+    method: "POST",
     headers: { Authorization: `Bearer ${idToken}` },
     body: formData,
   });
@@ -137,18 +174,18 @@ export async function uploadAssetPhotos(idToken: string, files: File[]): Promise
  */
 export async function createAssetListing(
   input: NewAssetInput,
-  photoUrls: string[]
+  photoUrls: string[],
 ): Promise<string> {
   const docRef = await addDoc(collection(db, ASSETS_COLLECTION), {
     ...input,
-    image: photoUrls[0] || '',
+    image: photoUrls[0] || "",
     additionalImages: photoUrls.slice(1),
     // Every new listing starts pending admin review — it will not appear
     // in `subscribeToApprovedAssets` (the public marketplace) until an
     // admin approves it via `updateAssetStatus`. Hardcoded here rather
     // than accepted from `input` so a listing can never be created as
     // already-approved by a non-admin caller.
-    status: 'pending',
+    status: "pending",
     createdAt: serverTimestamp(),
   });
 
@@ -171,12 +208,15 @@ export async function createAssetListing(
  */
 export async function updateAssetStatus(
   assetId: string,
-  status: 'approved' | 'rejected' | 'pending',
-  rejectionReason?: string
+  status: "approved" | "rejected" | "pending",
+  rejectionReason?: string,
 ): Promise<void> {
   await updateDoc(doc(db, ASSETS_COLLECTION, assetId), {
     status,
-    rejectionReason: status === 'rejected' && rejectionReason ? rejectionReason : deleteField(),
+    rejectionReason:
+      status === "rejected" && rejectionReason
+        ? rejectionReason
+        : deleteField(),
     moderatedAt: serverTimestamp(),
   });
 }
@@ -195,7 +235,10 @@ function snapshotToAssets(snapshot: QuerySnapshot<DocumentData>): Asset[] {
   // composite index).
   withTimestamps.sort((a, b) => b.createdAtMillis - a.createdAtMillis);
 
-  return withTimestamps.map((entry) => ({ ...entry.asset, createdAtMillis: entry.createdAtMillis }));
+  return withTimestamps.map((entry) => ({
+    ...entry.asset,
+    createdAtMillis: entry.createdAtMillis,
+  }));
 }
 
 /**
@@ -212,16 +255,16 @@ function snapshotToAssets(snapshot: QuerySnapshot<DocumentData>): Asset[] {
  */
 export function subscribeToAllAssets(
   callback: (assets: Asset[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   const assetsQuery = query(collection(db, ASSETS_COLLECTION));
   return onSnapshot(
     assetsQuery,
     (snapshot) => callback(snapshotToAssets(snapshot)),
     (error) => {
-      console.error('subscribeToAllAssets failed:', error);
+      console.error("subscribeToAllAssets failed:", error);
       onError?.(error);
-    }
+    },
   );
 }
 
@@ -235,10 +278,10 @@ export function subscribeToAllAssets(
  */
 export function subscribeToApprovedAssets(
   callback: (assets: Asset[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   return subscribeToAllAssets((assets) => {
-    callback(assets.filter((asset) => asset.status === 'approved'));
+    callback(assets.filter((asset) => asset.status === "approved"));
   }, onError);
 }
 
@@ -250,15 +293,18 @@ export function subscribeToApprovedAssets(
 export function subscribeToSellerAssets(
   sellerId: string,
   callback: (assets: Asset[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
-  const assetsQuery = query(collection(db, ASSETS_COLLECTION), where('sellerId', '==', sellerId));
+  const assetsQuery = query(
+    collection(db, ASSETS_COLLECTION),
+    where("sellerId", "==", sellerId),
+  );
   return onSnapshot(
     assetsQuery,
     (snapshot) => callback(snapshotToAssets(snapshot)),
     (error) => {
-      console.error('subscribeToSellerAssets failed:', error);
+      console.error("subscribeToSellerAssets failed:", error);
       onError?.(error);
-    }
+    },
   );
 }

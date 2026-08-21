@@ -58,9 +58,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   const DashboardIcon = profile?.role === "admin" ? ShieldCheck : LayoutDashboard;
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#0B1B41] text-white border-b border-slate-800 shadow-md">
+    <header className="sticky top-0 z-40 w-full    shadow-md">
       {/* Primary Top Header Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-slate-800/80">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
         <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-4">
 
           {/* Logo & Brand */}
@@ -79,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href="/"
                 className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                   isMarketplace
-                    ? "bg-brand-600 text-white shadow-sm"
+                    ? "bg-green-900 text-white shadow-sm"
                     : "text-slate-300 hover:text-white hover:bg-slate-800/70"
                 }`}
               >
@@ -91,7 +91,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   href={dashboardHref}
                   className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all ${
                     isDashboard
-                      ? "bg-brand-600 text-white shadow-sm"
+                      ? "bg-green-900 text-white shadow-sm"
                       : "text-slate-300 hover:text-white hover:bg-slate-800/70"
                   }`}
                 >
@@ -105,20 +105,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Right Action Controls */}
           <div className="flex items-center gap-1.5 sm:gap-3">
 
-            {/* Home Navigation */}
-            <Link
-              href="/"
-              className="hidden md:flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-colors"
-            >
-              <Home className="w-4 h-4 text-brand-400" />
-              <span>Home</span>
-            </Link>
+
 
             {/* Primary Action: List an Asset Button — sellers only */}
             {profile?.role === "seller" && (
               <button
                 onClick={() => onOpenListModal?.()}
-                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-extrabold rounded-xl shadow-md shadow-brand-600/20 transition-all active:scale-[0.98] shrink-0"
+                className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5  text-xs font-extrabold rounded-xl shadow-md shadow-brand-600/20 transition-all active:scale-[0.98] shrink-0"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span className="hidden sm:inline">List an Asset</span>
@@ -128,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Saved Favorites Trigger */}
             <button
-              className="relative p-2 sm:p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-colors shrink-0"
+              className="relative p-2 sm:p-2.5  hover:bg-slate-800/80 rounded-xl transition-colors shrink-0"
               title="Saved Assets"
             >
               <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -142,12 +135,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Direct Messages Chat Trigger */}
             <button
               onClick={() => onToggleChat?.()}
-              className="relative p-2 sm:p-2.5 text-slate-300 hover:text-white hover:bg-slate-800/80 rounded-xl transition-colors shrink-0"
+              className="relative p-2 sm:p-2.5  rounded-xl transition-colors shrink-0"
               title="Direct Messages"
             >
               <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
               {unreadChatCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-brand-500 text-white font-bold text-[10px] rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5  font-bold text-[10px] rounded-full flex items-center justify-center">
                   {unreadChatCount}
                 </span>
               )}
@@ -166,10 +159,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                       )}
                     </div>
                     <div className="hidden md:flex flex-col text-left">
-                      <span className="text-xs font-bold text-slate-100 group-hover:text-brand-400 transition-colors">
+                      <span className="text-xs font-bold  transition-colors">
                         {profile?.fullName || user.displayName || 'User'}
                       </span>
-                      <span className="text-[10px] font-semibold text-brand-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-semibold  uppercase tracking-wider">
                         {profile?.role || 'Member'}
                       </span>
                     </div>
@@ -273,64 +266,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         )}
       </div>
 
-      {/* Secondary Search & Filter Sub-Bar - only shown where search is wired up (marketplace) */}
-      {setSearchQuery && (
-        <div className="bg-[#081432] border-t border-slate-800/80 px-4 sm:px-6 lg:px-8 py-2.5">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-stretch md:items-center gap-2.5 sm:gap-4">
 
-            {/* Search Input Field */}
-            <div className="flex-1 relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <Search className="w-4 h-4" />
-              </div>
-              <input
-                type="text"
-                value={searchQuery ?? ""}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search equipment, tools & machinery..."
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-700/80 rounded-xl text-xs text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium transition-all"
-              />
-            </div>
-
-            {/* Location Selector Dropdown */}
-            <div className="relative w-full md:w-48 shrink-0">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <MapPin className="w-3.5 h-3.5 text-brand-400" />
-              </div>
-              <select className="w-full pl-8 pr-4 py-2 text-xs rounded-xl bg-white border border-slate-700/80 text-black focus:outline-none focus:ring-2 focus:ring-brand-500 font-medium appearance-none cursor-pointer">
-                <option value="all">Any location</option>
-                <option value="kigali">Kigali</option>
-                <option value="gatenga">Gatenga</option>
-                <option value="kicukiro">Kicukiro</option>
-              </select>
-            </div>
-
-            {/* Listing Type Tabs (Horizontal Scrollable on Mobile) */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 shrink-0">
-              {["All", "Rent", "Sale", "Service"].map((t) => (
-                <button
-                  key={t}
-                  onClick={() => setSelectedType(t)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
-                    selectedType === t
-                      ? "bg-brand-600 text-white shadow-sm"
-                      : "bg-slate-900/50 text-slate-300 border border-slate-800 hover:text-white hover:bg-slate-800"
-                  }`}
-                >
-                  {t === "All"
-                    ? "All Listings"
-                    : t === "Rent"
-                      ? "For Rent"
-                      : t === "Sale"
-                        ? "For Sale"
-                        : "Services"}
-                </button>
-              ))}
-            </div>
-
-          </div>
-        </div>
-      )}
     </header>
   );
 };

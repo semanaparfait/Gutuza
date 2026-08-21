@@ -1,21 +1,22 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Asset } from '../../data/assetTypes';
-import { Navbar } from '../../components/Navbar';
-import { SellerDashboard } from '../../components/SellerDashboard';
-import { ListAssetModal } from '../../components/ListAssetModal';
-import { AssetDetailModal } from '../../components/AssetDetailModal';
-import { ChatDrawer } from '../../components/ChatDrawer';
-import { LoadingScreen } from '../../components/LoadingScreen';
-import { useRoleGuard } from '@/lib/useRoleGuard';
-import { subscribeToSellerAssets } from '@/lib/assetServices';
+import React, { useEffect, useState } from "react";
+import { Asset } from "../../data/assetTypes";
+import { Navbar } from "../../components/Navbar";
+import { SellerDashboard } from "../../components/SellerDashboard";
+import { ListAssetModal } from "../../components/ListAssetModal";
+import { AssetDetailModal } from "../../components/AssetDetailModal";
+import { ChatDrawer } from "../../components/ChatDrawer";
+import { LoadingScreen } from "../../components/LoadingScreen";
+import { useRoleGuard } from "@/lib/useRoleGuard";
+import { subscribeToSellerAssets } from "@/lib/assetServices";
 
 export default function SellerDashboardPage() {
-  const { ready, user } = useRoleGuard('seller');
+  const { ready, user } = useRoleGuard("seller");
 
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [selectedAssetForDetail, setSelectedAssetForDetail] = useState<Asset | null>(null);
+  const [selectedAssetForDetail, setSelectedAssetForDetail] =
+    useState<Asset | null>(null);
   const [isListModalOpen, setIsListModalOpen] = useState(false);
   const [isChatDrawerOpen, setIsChatDrawerOpen] = useState(false);
 

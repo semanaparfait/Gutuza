@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 import {
   User,
   MapPin,
@@ -11,10 +11,10 @@ import {
   ChevronRight,
   Search,
   ShieldCheck,
-} from 'lucide-react';
-import type { Asset } from '../data/assetTypes';
-import { useAuth } from '@/context/AuthContext';
-import { subscribeToBuyerBookings, type Booking } from '@/lib/bookingServices';
+} from "lucide-react";
+import type { Asset } from "../data/assetTypes";
+import { useAuth } from "@/context/AuthContext";
+import { subscribeToBuyerBookings, type Booking } from "@/lib/bookingServices";
 
 function formatDateRange(startDate: string, endDate: string): string {
   const start = new Date(startDate);
@@ -22,17 +22,25 @@ function formatDateRange(startDate: string, endDate: string): string {
   if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
     return `${startDate} - ${endDate}`;
   }
-  const startLabel = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  const endLabel = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  const startLabel = start.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
+  const endLabel = end.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
   return `${startLabel} - ${endLabel}`;
 }
 
 export const BuyerDashboard: React.FC = () => {
   const { user, profile } = useAuth();
 
-  const displayName = profile?.fullName || user?.displayName || 'Assetify Member';
-  const avatarUrl = profile?.photoURL || user?.photoURL || '';
-  const memberSince = profile?.createdAt ? 'Assetify Member' : 'New Member';
+  const displayName =
+    profile?.fullName || user?.displayName || "Assetify Member";
+  const avatarUrl = profile?.photoURL || user?.photoURL || "";
+  const memberSince = profile?.createdAt ? "Assetify Member" : "New Member";
 
   // Real bookings from Firestore — written by BookingModal when a buyer
   // confirms a booking. Empty until the buyer has actually booked something.
@@ -47,7 +55,7 @@ export const BuyerDashboard: React.FC = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const activeBookings = bookings.filter((b) => b.status !== 'cancelled');
+  const activeBookings = bookings.filter((b) => b.status !== "cancelled");
   const totalSpent = activeBookings.reduce((sum, b) => sum + b.totalPrice, 0);
 
   // Saved/wishlist assets aren't backed by a real collection yet — there's
@@ -61,22 +69,29 @@ export const BuyerDashboard: React.FC = () => {
     <div className="min-h-screen bg-[#f3f4f6] text-slate-800 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
           {/* ================= LEFT SIDEBAR ================= */}
           <aside className="lg:col-span-4 space-y-6">
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 text-center">
               <div className="relative w-28 h-28 mx-auto mb-4">
                 <div className="w-full h-full rounded-full bg-emerald-100 border-4 border-slate-100 overflow-hidden flex items-center justify-center shadow-inner">
                   {avatarUrl ? (
-                    <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                    <img
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <User className="w-14 h-14 text-emerald-700" />
                   )}
                 </div>
               </div>
 
-              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{displayName}</h2>
-              <p className="text-sm text-slate-500 font-medium mb-1">{profile?.email || user?.email}</p>
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {displayName}
+              </h2>
+              <p className="text-sm text-slate-500 font-medium mb-1">
+                {profile?.email || user?.email}
+              </p>
               <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full mb-6">
                 <ShieldCheck className="w-3 h-3" />
                 Buyer • {memberSince}
@@ -84,19 +99,29 @@ export const BuyerDashboard: React.FC = () => {
 
               <div className="grid grid-cols-2 divide-x divide-slate-200 border-t border-slate-100 pt-4">
                 <div className="px-2">
-                  <div className="text-xl font-extrabold text-slate-900">{activeBookings.length}</div>
-                  <div className="text-xs font-semibold text-slate-500">Bookings</div>
+                  <div className="text-xl font-extrabold text-slate-900">
+                    {activeBookings.length}
+                  </div>
+                  <div className="text-xs font-semibold text-slate-500">
+                    Bookings
+                  </div>
                 </div>
                 <div className="px-2">
-                  <div className="text-xl font-extrabold text-slate-900">{savedAssets.length}</div>
-                  <div className="text-xs font-semibold text-slate-500">Saved</div>
+                  <div className="text-xl font-extrabold text-slate-900">
+                    {savedAssets.length}
+                  </div>
+                  <div className="text-xs font-semibold text-slate-500">
+                    Saved
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-2">
-              <h3 className="text-base font-bold text-slate-900 mb-2 px-1">Quick actions</h3>
+              <h3 className="text-base font-bold text-slate-900 mb-2 px-1">
+                Quick actions
+              </h3>
               <Link
                 href="/"
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-all"
@@ -120,16 +145,28 @@ export const BuyerDashboard: React.FC = () => {
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
               <div className="grid grid-cols-3 divide-x divide-slate-200 text-center">
                 <div className="px-4">
-                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">{activeBookings.length}</div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Active Bookings</div>
+                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">
+                    {activeBookings.length}
+                  </div>
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+                    Active Bookings
+                  </div>
                 </div>
                 <div className="px-4">
-                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">{savedAssets.length}</div>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">Saved Assets</div>
+                  <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">
+                    {savedAssets.length}
+                  </div>
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mt-1">
+                    Saved Assets
+                  </div>
                 </div>
                 <div className="px-4">
-                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">Total Spent</div>
-                  <div className="text-3xl sm:text-4xl font-black text-emerald-600">${totalSpent.toLocaleString()}</div>
+                  <div className="text-xs sm:text-sm font-semibold text-slate-600 mb-1">
+                    Total Spent
+                  </div>
+                  <div className="text-3xl sm:text-4xl font-black text-emerald-600">
+                    ${totalSpent.toLocaleString()}
+                  </div>
                 </div>
               </div>
             </div>
@@ -183,11 +220,16 @@ export const BuyerDashboard: React.FC = () => {
 
                           <div className="flex items-center gap-1 text-xs font-semibold text-slate-500">
                             <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{formatDateRange(booking.startDate, booking.endDate)}</span>
+                            <span>
+                              {formatDateRange(
+                                booking.startDate,
+                                booking.endDate,
+                              )}
+                            </span>
                           </div>
 
                           <div className="pt-0.5">
-                            {booking.status === 'confirmed' ? (
+                            {booking.status === "confirmed" ? (
                               <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-bold bg-[#15803D] text-white shadow-sm">
                                 Confirmed
                               </span>
@@ -284,9 +326,12 @@ export const BuyerDashboard: React.FC = () => {
             {/* CTA Banner */}
             <section className="bg-[#0B1B41] rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
               <div>
-                <h3 className="text-lg font-bold">Looking for something specific?</h3>
+                <h3 className="text-lg font-bold">
+                  Looking for something specific?
+                </h3>
                 <p className="text-xs text-slate-300 mt-1">
-                  Browse thousands of verified assets available to rent, buy, or swap near you.
+                  Browse thousands of verified assets available to rent, buy, or
+                  swap near you.
                 </p>
               </div>
               <Link

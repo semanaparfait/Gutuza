@@ -1,18 +1,18 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { 
-  X, 
-  MapPin, 
-  Star, 
-  ShieldCheck, 
-  Phone, 
-  Clock, 
-  Calendar, 
-  MessageSquare, 
-  Heart
-} from 'lucide-react';
-import { Asset } from '../data/assetTypes';
+import React from "react";
+import {
+  X,
+  MapPin,
+  Star,
+  ShieldCheck,
+  Phone,
+  Clock,
+  Calendar,
+  MessageSquare,
+  Heart,
+} from "lucide-react";
+import { Asset } from "../data/assetTypes";
 
 interface AssetDetailModalProps {
   asset: Asset | null;
@@ -29,7 +29,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
   onBook,
   onChatWithOwner,
   isSaved,
-  onToggleSave
+  onToggleSave,
 }) => {
   if (!asset) return null;
 
@@ -40,7 +40,6 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#111a18]/70 backdrop-blur-sm overflow-y-auto">
       {/* 60% Crisp White Modal Background */}
       <div className="relative w-full max-w-4xl bg-white text-[#111a18] rounded-3xl border border-slate-200 shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
-        
         {/* Modal Header */}
         <div className="sticky top-0 z-20 flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200">
           <div className="flex items-center gap-3">
@@ -57,11 +56,11 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
               onClick={() => onToggleSave(asset.id)}
               className={`p-2 rounded-full border transition-all ${
                 isSaved
-                  ? 'bg-rose-50 border-rose-200 text-rose-600'
-                  : 'border-slate-200 text-slate-600 hover:bg-slate-100'
+                  ? "bg-rose-50 border-rose-200 text-rose-600"
+                  : "border-slate-200 text-slate-600 hover:bg-slate-100"
               }`}
             >
-              <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+              <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
             </button>
 
             <button
@@ -75,9 +74,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
 
         {/* Content Area */}
         <div className="p-6 overflow-y-auto space-y-8 flex-1">
-          
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            
             {/* Gallery */}
             <div className="md:col-span-7 space-y-3">
               <div className="relative w-full h-72 sm:h-80 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200">
@@ -96,11 +93,15 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
                       onClick={() => setActiveImageIndex(idx)}
                       className={`relative w-20 h-14 rounded-xl overflow-hidden border-2 transition-all flex-shrink-0 ${
                         activeImageIndex === idx
-                          ? 'border-emerald-600 ring-2 ring-emerald-500/30'
-                          : 'border-transparent opacity-70 hover:opacity-100'
+                          ? "border-emerald-600 ring-2 ring-emerald-500/30"
+                          : "border-transparent opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                      <img
+                        src={img}
+                        alt="Thumbnail"
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>
@@ -113,10 +114,14 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
                 <div className="flex items-center gap-2 text-amber-500 text-xs font-semibold">
                   <div className="flex items-center">
                     <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                    <span className="ml-1 text-[#111a18] font-bold">{asset.rating}</span>
+                    <span className="ml-1 text-[#111a18] font-bold">
+                      {asset.rating}
+                    </span>
                   </div>
                   <span>•</span>
-                  <span className="text-slate-500">{asset.reviewsCount} verified reviews</span>
+                  <span className="text-slate-500">
+                    {asset.reviewsCount} verified reviews
+                  </span>
                 </div>
 
                 <h2 className="text-xl font-black text-[#111a18] leading-snug">
@@ -125,21 +130,31 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
 
                 <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
                   <MapPin className="w-4 h-4 text-emerald-600" />
-                  <span>{asset.location}, {asset.country}</span>
+                  <span>
+                    {asset.location}, {asset.country}
+                  </span>
                 </div>
 
                 {/* Price Box */}
                 <div className="py-3 px-4 bg-white rounded-xl border border-slate-200 flex items-baseline justify-between shadow-xs">
-                  <span className="text-xs text-slate-500 font-semibold">Rate:</span>
+                  <span className="text-xs text-slate-500 font-semibold">
+                    Rate:
+                  </span>
                   <div>
-                    <span className="text-2xl font-black text-emerald-600">${asset.price}</span>
-                    <span className="text-xs text-slate-400 ml-1">/ {asset.priceUnit}</span>
+                    <span className="text-2xl font-black text-emerald-600">
+                      ${asset.price}
+                    </span>
+                    <span className="text-xs text-slate-400 ml-1">
+                      / {asset.priceUnit}
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-xs text-slate-700 font-medium">
                   <Clock className="w-4 h-4 text-emerald-600" />
-                  <span>Availability: <strong>{asset.availability}</strong></span>
+                  <span>
+                    Availability: <strong>{asset.availability}</strong>
+                  </span>
                 </div>
               </div>
 
@@ -150,7 +165,13 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
                   className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
                 >
                   <Calendar className="w-4 h-4" />
-                  <span>{asset.type === 'Rent' ? 'Book Asset Now' : asset.type === 'Sale' ? 'Purchase Asset' : 'Request Service'}</span>
+                  <span>
+                    {asset.type === "Rent"
+                      ? "Book Asset Now"
+                      : asset.type === "Sale"
+                        ? "Purchase Asset"
+                        : "Request Service"}
+                  </span>
                 </button>
 
                 <button
@@ -162,7 +183,6 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
                 </button>
               </div>
             </div>
-
           </div>
 
           {/* Description */}
@@ -182,9 +202,16 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {Object.entries(asset.specifications || {}).map(([key, val]) => (
-                <div key={key} className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between shadow-xs">
-                  <span className="text-xs text-slate-500 font-medium">{key}</span>
-                  <span className="text-xs font-bold text-[#111a18]">{val}</span>
+                <div
+                  key={key}
+                  className="p-3 bg-white rounded-xl border border-slate-200 flex items-center justify-between shadow-xs"
+                >
+                  <span className="text-xs text-slate-500 font-medium">
+                    {key}
+                  </span>
+                  <span className="text-xs font-bold text-[#111a18]">
+                    {val}
+                  </span>
                 </div>
               ))}
             </div>
@@ -200,7 +227,9 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
               />
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <h4 className="font-bold text-base text-white">{asset.owner.name}</h4>
+                  <h4 className="font-bold text-base text-white">
+                    {asset.owner.name}
+                  </h4>
                   {asset.owner.verified && (
                     <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
                       <ShieldCheck className="w-3 h-3" />
@@ -208,10 +237,17 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
                     </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-400">{asset.owner.company || 'Private Owner'} • Member since {asset.owner.memberSince}</p>
+                <p className="text-xs text-slate-400">
+                  {asset.owner.company || "Private Owner"} • Member since{" "}
+                  {asset.owner.memberSince}
+                </p>
                 <div className="flex items-center gap-3 text-[11px] text-slate-300">
-                  <span>Rating: <strong>{asset.owner.rating} / 5.0</strong></span>
-                  <span>Response: <strong>{asset.owner.responseTime}</strong></span>
+                  <span>
+                    Rating: <strong>{asset.owner.rating} / 5.0</strong>
+                  </span>
+                  <span>
+                    Response: <strong>{asset.owner.responseTime}</strong>
+                  </span>
                 </div>
               </div>
             </div>
@@ -224,9 +260,7 @@ export const AssetDetailModal: React.FC<AssetDetailModalProps> = ({
               <span>Contact Host</span>
             </button>
           </div>
-
         </div>
-
       </div>
     </div>
   );

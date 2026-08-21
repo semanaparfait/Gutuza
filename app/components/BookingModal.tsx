@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React from 'react';
+import React from "react";
 import {
   X,
   Calendar,
@@ -10,25 +10,30 @@ import {
   CheckCircle2,
   Sparkles,
   Truck,
-  UserCheck
-} from 'lucide-react';
-import { Asset } from '../data/assetTypes';
-import { useAuth } from '@/context/AuthContext';
-import { createBooking } from '@/lib/bookingServices';
+  UserCheck,
+} from "lucide-react";
+import { Asset } from "../data/assetTypes";
+import { useAuth } from "@/context/AuthContext";
+import { createBooking } from "@/lib/bookingServices";
 
 interface BookingModalProps {
   asset: Asset | null;
   onClose: () => void;
 }
 
-export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) => {
+export const BookingModal: React.FC<BookingModalProps> = ({
+  asset,
+  onClose,
+}) => {
   const { user } = useAuth();
 
-  const [startDate, setStartDate] = React.useState('2026-08-05');
-  const [endDate, setEndDate] = React.useState('2026-08-08');
+  const [startDate, setStartDate] = React.useState("2026-08-05");
+  const [endDate, setEndDate] = React.useState("2026-08-08");
   const [includeOperator, setIncludeOperator] = React.useState(true);
   const [includeInsurance, setIncludeInsurance] = React.useState(true);
-  const [paymentMethod, setPaymentMethod] = React.useState<'momo' | 'card' | 'bank'>('momo');
+  const [paymentMethod, setPaymentMethod] = React.useState<
+    "momo" | "card" | "bank"
+  >("momo");
   const [bookingConfirmed, setBookingConfirmed] = React.useState(false);
   const [bookingId, setBookingId] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -39,7 +44,10 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
   // Calculate rental duration in days
   const start = new Date(startDate);
   const end = new Date(endDate);
-  const diffTime = Math.max(1000 * 60 * 60 * 24, end.getTime() - start.getTime());
+  const diffTime = Math.max(
+    1000 * 60 * 60 * 24,
+    end.getTime() - start.getTime(),
+  );
   const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 1;
 
   const basePrice = asset.price * days;
@@ -56,7 +64,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
   const handleConfirm = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      setSubmitError('Please sign in to complete a booking.');
+      setSubmitError("Please sign in to complete a booking.");
       return;
     }
     setIsSubmitting(true);
@@ -80,7 +88,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
       setBookingId(newId);
       setBookingConfirmed(true);
     } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : 'Could not create this booking.');
+      setSubmitError(
+        err instanceof Error ? err.message : "Could not create this booking.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -89,13 +99,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
       <div className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-8">
-
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-emerald-500" />
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              {bookingConfirmed ? 'Booking Confirmed' : `Book ${asset.title}`}
+              {bookingConfirmed ? "Booking Confirmed" : `Book ${asset.title}`}
             </h3>
           </div>
           <button
@@ -108,7 +117,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
 
         {!bookingConfirmed ? (
           <form onSubmit={handleConfirm} className="p-6 space-y-6">
-
             {/* Asset Summary Pill */}
             <div className="flex items-center gap-3 p-3 bg-slate-100 dark:bg-slate-800/70 rounded-2xl border border-slate-200 dark:border-slate-700">
               <img
@@ -120,8 +128,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 <h4 className="text-xs font-bold text-slate-900 dark:text-white line-clamp-1">
                   {asset.title}
                 </h4>
-                <p className="text-[11px] text-slate-500">{asset.location} • ${asset.price} / {asset.priceUnit}</p>
-                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Owner: {asset.owner.name}</p>
+                <p className="text-[11px] text-slate-500">
+                  {asset.location} • ${asset.price} / {asset.priceUnit}
+                </p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                  Owner: {asset.owner.name}
+                </p>
               </div>
             </div>
 
@@ -164,8 +176,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 <div className="flex items-center gap-2.5">
                   <UserCheck className="w-4 h-4 text-emerald-500" />
                   <div>
-                    <div className="text-xs font-semibold text-slate-900 dark:text-white">Certified Operator</div>
-                    <div className="text-[10px] text-slate-400">Includes licensed heavy machine operator</div>
+                    <div className="text-xs font-semibold text-slate-900 dark:text-white">
+                      Certified Operator
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Includes licensed heavy machine operator
+                    </div>
                   </div>
                 </div>
                 <input
@@ -180,8 +196,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-500" />
                   <div>
-                    <div className="text-xs font-semibold text-slate-900 dark:text-white">Assetify Damage Insurance</div>
-                    <div className="text-[10px] text-slate-400">Covers equipment damage & third-party liability</div>
+                    <div className="text-xs font-semibold text-slate-900 dark:text-white">
+                      Assetify Damage Insurance
+                    </div>
+                    <div className="text-[10px] text-slate-400">
+                      Covers equipment damage & third-party liability
+                    </div>
                   </div>
                 </div>
                 <input
@@ -201,11 +221,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('momo')}
-                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-medium ${paymentMethod === 'momo'
-                      ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold'
-                      : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                    }`}
+                  onClick={() => setPaymentMethod("momo")}
+                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-medium ${
+                    paymentMethod === "momo"
+                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
+                      : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+                  }`}
                 >
                   <Smartphone className="w-4 h-4" />
                   Mobile Money
@@ -213,11 +234,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
 
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-medium ${paymentMethod === 'card'
-                      ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold'
-                      : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                    }`}
+                  onClick={() => setPaymentMethod("card")}
+                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-medium ${
+                    paymentMethod === "card"
+                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
+                      : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+                  }`}
                 >
                   <CreditCard className="w-4 h-4" />
                   Credit / Debit
@@ -225,11 +247,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
 
                 <button
                   type="button"
-                  onClick={() => setPaymentMethod('bank')}
-                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-medium ${paymentMethod === 'bank'
-                      ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold'
-                      : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
-                    }`}
+                  onClick={() => setPaymentMethod("bank")}
+                  className={`p-3 rounded-xl border flex flex-col items-center gap-1.5 transition-all text-xs font-medium ${
+                    paymentMethod === "bank"
+                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold"
+                      : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+                  }`}
                 >
                   <ShieldCheck className="w-4 h-4" />
                   Bank Escrow
@@ -240,7 +263,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
             {/* Total Price Calculation Summary */}
             <div className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-2xl space-y-2 border border-slate-200 dark:border-slate-700 text-xs">
               <div className="flex justify-between text-slate-600 dark:text-slate-400">
-                <span>Rate (${asset.price} x {days} days)</span>
+                <span>
+                  Rate (${asset.price} x {days} days)
+                </span>
                 <span>${basePrice}</span>
               </div>
               {includeOperator && (
@@ -261,7 +286,9 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
               </div>
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between font-extrabold text-sm text-slate-900 dark:text-white">
                 <span>Total Amount Due</span>
-                <span className="text-emerald-600 dark:text-emerald-400 text-base">${totalPrice}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 text-base">
+                  ${totalPrice}
+                </span>
               </div>
             </div>
 
@@ -278,9 +305,12 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
               className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
             >
               <CheckCircle2 className="w-5 h-5" />
-              <span>{isSubmitting ? 'Sending Request…' : `Confirm & Pay $${totalPrice}`}</span>
+              <span>
+                {isSubmitting
+                  ? "Sending Request…"
+                  : `Confirm & Pay $${totalPrice}`}
+              </span>
             </button>
-
           </form>
         ) : (
           /* Confirmation View */
@@ -294,13 +324,16 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
                 Booking Request Sent Successfully!
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Booking ref <strong>#{bookingId}</strong>. It&apos;s recorded as pending — the owner, {asset.owner.name}, can confirm it from their seller dashboard.
+                Booking ref <strong>#{bookingId}</strong>. It&apos;s recorded as
+                pending — the owner, {asset.owner.name}, can confirm it from
+                their seller dashboard.
               </p>
             </div>
 
             <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-800 dark:text-emerald-300">
               <Sparkles className="w-4 h-4 inline mr-1" />
-              You can track this booking&apos;s status from your dashboard at any time.
+              You can track this booking&apos;s status from your dashboard at
+              any time.
             </div>
 
             <button
@@ -311,7 +344,6 @@ export const BookingModal: React.FC<BookingModalProps> = ({ asset, onClose }) =>
             </button>
           </div>
         )}
-
       </div>
     </div>
   );

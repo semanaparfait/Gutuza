@@ -103,8 +103,12 @@ const RejectAssetModal: React.FC<{
         <div>
           <h3 className="text-base font-bold text-slate-900">Reject listing</h3>
           <p className="text-xs text-slate-500 mt-1.5">
-            Tell the seller of <span className="font-bold text-slate-700">&ldquo;{asset.title}&rdquo;</span> what&apos;s
-            wrong so they know why it was declined and, where possible, how to fix it.
+            Tell the seller of{" "}
+            <span className="font-bold text-slate-700">
+              &ldquo;{asset.title}&rdquo;
+            </span>{" "}
+            what&apos;s wrong so they know why it was declined and, where
+            possible, how to fix it.
           </p>
         </div>
 
@@ -150,7 +154,11 @@ const RejectAssetModal: React.FC<{
             disabled={!canSubmit || submitting}
             className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition-colors"
           >
-            {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4" />}
+            {submitting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <XCircle className="w-4 h-4" />
+            )}
             Reject &amp; Notify Seller
           </button>
         </div>
@@ -177,11 +185,15 @@ const MetricCard: React.FC<{
     <div className="p-5 bg-white rounded-2xl border border-slate-200 space-y-2">
       <div className="flex items-center justify-between text-slate-500">
         <span className="text-xs font-semibold">{label}</span>
-        <div className={`w-7 h-7 rounded-lg ${t.bg} flex items-center justify-center`}>
+        <div
+          className={`w-7 h-7 rounded-lg ${t.bg} flex items-center justify-center`}
+        >
           <Icon className={`w-4 h-4 ${t.icon}`} />
         </div>
       </div>
-      <div className="text-2xl font-black text-slate-900">{value.toLocaleString()}</div>
+      <div className="text-2xl font-black text-slate-900">
+        {value.toLocaleString()}
+      </div>
     </div>
   );
 };
@@ -192,7 +204,10 @@ const VerificationQueue: React.FC<{
   moderatingId: string | null;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
-  sellerLabel: (sellerId: string | null | undefined, fallback: string) => string;
+  sellerLabel: (
+    sellerId: string | null | undefined,
+    fallback: string,
+  ) => string;
 }> = ({ assets, error, moderatingId, onApprove, onReject, sellerLabel }) => {
   if (error) return <ErrorBanner message={error} />;
 
@@ -204,7 +219,8 @@ const VerificationQueue: React.FC<{
         </div>
         <h3 className="text-sm font-bold text-slate-900">All caught up</h3>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
-          No listings are waiting for review right now. New submissions will appear here first, before they go live on the marketplace.
+          No listings are waiting for review right now. New submissions will
+          appear here first, before they go live on the marketplace.
         </p>
       </div>
     );
@@ -213,10 +229,17 @@ const VerificationQueue: React.FC<{
   return (
     <div className="space-y-4">
       {assets.map((asset) => (
-        <div key={asset.id} className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
+        <div
+          key={asset.id}
+          className="bg-white rounded-3xl border border-slate-200 overflow-hidden"
+        >
           <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-0">
             <div className="h-48 md:h-full bg-slate-100">
-              <img src={asset.image} alt={asset.title} className="w-full h-full object-cover" />
+              <img
+                src={asset.image}
+                alt={asset.title}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="p-5 space-y-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -225,17 +248,25 @@ const VerificationQueue: React.FC<{
                     <span className="px-2.5 py-1 rounded-lg text-[11px] font-extrabold uppercase text-white bg-brand-600">
                       For {asset.type}
                     </span>
-                    <span className="text-[11px] text-slate-500 font-semibold">{asset.category}</span>
+                    <span className="text-[11px] text-slate-500 font-semibold">
+                      {asset.category}
+                    </span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mt-1.5">{asset.title}</h3>
+                  <h3 className="text-base font-bold text-slate-900 mt-1.5">
+                    {asset.title}
+                  </h3>
                   <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
                     <MapPin className="w-3.5 h-3.5" />
                     {asset.location}, {asset.country}
                   </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-lg font-black text-slate-900">RWF {asset.price.toLocaleString()}</div>
-                  <div className="text-[10px] text-slate-400">/ {asset.priceUnit}</div>
+                  <div className="text-lg font-black text-slate-900">
+                    RWF {asset.price.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    / {asset.priceUnit}
+                  </div>
                 </div>
               </div>
 
@@ -245,7 +276,10 @@ const VerificationQueue: React.FC<{
 
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
                 <div className="text-xs text-slate-500">
-                  Listed by <span className="font-bold text-slate-800">{sellerLabel(asset.sellerId, asset.owner.name)}</span>
+                  Listed by{" "}
+                  <span className="font-bold text-slate-800">
+                    {sellerLabel(asset.sellerId, asset.owner.name)}
+                  </span>
                   {" • "}Submitted {timeAgo(asset.createdAtMillis)}
                 </div>
                 <div className="flex items-center gap-2">
@@ -293,21 +327,37 @@ const AssetsTable: React.FC<{
   moderatingId: string | null;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
-  sellerLabel: (sellerId: string | null | undefined, fallback: string) => string;
-}> = ({ assets, error, filter, onFilterChange, moderatingId, onApprove, onReject, sellerLabel }) => {
+  sellerLabel: (
+    sellerId: string | null | undefined,
+    fallback: string,
+  ) => string;
+}> = ({
+  assets,
+  error,
+  filter,
+  onFilterChange,
+  moderatingId,
+  onApprove,
+  onReject,
+  sellerLabel,
+}) => {
   if (error) return <ErrorBanner message={error} />;
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
       <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100">
-        <h3 className="text-sm font-bold text-slate-900">All Assets ({assets.length})</h3>
+        <h3 className="text-sm font-bold text-slate-900">
+          All Assets ({assets.length})
+        </h3>
         <div className="flex items-center gap-1.5">
           {(["all", "pending", "approved", "rejected"] as const).map((f) => (
             <button
               key={f}
               onClick={() => onFilterChange(f)}
               className={`px-3 py-1.5 rounded-lg text-[11px] font-bold capitalize transition-all ${
-                filter === f ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                filter === f
+                  ? "bg-brand-600 text-white"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               {f}
@@ -317,7 +367,9 @@ const AssetsTable: React.FC<{
       </div>
 
       {assets.length === 0 ? (
-        <div className="p-10 text-center text-xs text-slate-500">No assets match this filter.</div>
+        <div className="p-10 text-center text-xs text-slate-500">
+          No assets match this filter.
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -334,7 +386,10 @@ const AssetsTable: React.FC<{
               {assets.map((asset) => {
                 const status = asset.status || "approved";
                 return (
-                  <tr key={asset.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+                  <tr
+                    key={asset.id}
+                    className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60"
+                  >
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
                         <img
@@ -343,7 +398,9 @@ const AssetsTable: React.FC<{
                           className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
                         />
                         <div className="min-w-0">
-                          <div className="font-bold text-slate-900 truncate max-w-[220px]">{asset.title}</div>
+                          <div className="font-bold text-slate-900 truncate max-w-[220px]">
+                            {asset.title}
+                          </div>
                           <div className="text-slate-400 text-[10px]">
                             {asset.category} • {asset.type}
                           </div>
@@ -358,9 +415,13 @@ const AssetsTable: React.FC<{
                     <td className="px-5 py-3 text-slate-600 font-semibold">
                       {sellerLabel(asset.sellerId, asset.owner.name)}
                     </td>
-                    <td className="px-5 py-3 font-bold text-slate-800">RWF {asset.price.toLocaleString()}</td>
+                    <td className="px-5 py-3 font-bold text-slate-800">
+                      RWF {asset.price.toLocaleString()}
+                    </td>
                     <td className="px-5 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${ASSET_STATUS_BADGE[status]}`}>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${ASSET_STATUS_BADGE[status]}`}
+                      >
                         {status}
                       </span>
                     </td>
@@ -405,7 +466,10 @@ const ROLE_BADGE: Record<string, string> = {
   admin: "bg-purple-100 text-purple-700",
 };
 
-const UsersTable: React.FC<{ users: UserProfile[]; error: string | null }> = ({ users, error }) => {
+const UsersTable: React.FC<{ users: UserProfile[]; error: string | null }> = ({
+  users,
+  error,
+}) => {
   const [search, setSearch] = React.useState("");
 
   if (error) return <ErrorBanner message={error} />;
@@ -413,13 +477,17 @@ const UsersTable: React.FC<{ users: UserProfile[]; error: string | null }> = ({ 
   const filtered = users.filter((u) => {
     const q = search.trim().toLowerCase();
     if (!q) return true;
-    return u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q);
+    return (
+      u.fullName.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+    );
   });
 
   return (
     <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
       <div className="p-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-100">
-        <h3 className="text-sm font-bold text-slate-900">All Users ({users.length})</h3>
+        <h3 className="text-sm font-bold text-slate-900">
+          All Users ({users.length})
+        </h3>
         <div className="relative">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -432,7 +500,9 @@ const UsersTable: React.FC<{ users: UserProfile[]; error: string | null }> = ({ 
       </div>
 
       {filtered.length === 0 ? (
-        <div className="p-10 text-center text-xs text-slate-500">No users match your search.</div>
+        <div className="p-10 text-center text-xs text-slate-500">
+          No users match your search.
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
@@ -446,29 +516,46 @@ const UsersTable: React.FC<{ users: UserProfile[]; error: string | null }> = ({ 
             </thead>
             <tbody>
               {filtered.map((u) => (
-                <tr key={u.uid} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+                <tr
+                  key={u.uid}
+                  className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60"
+                >
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center overflow-hidden font-bold text-[11px] shrink-0">
                         {u.photoURL ? (
-                          <img src={u.photoURL} alt={u.fullName} className="w-full h-full object-cover" />
+                          <img
+                            src={u.photoURL}
+                            alt={u.fullName}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           u.fullName.charAt(0).toUpperCase()
                         )}
                       </div>
-                      <span className="font-bold text-slate-900">{u.fullName}</span>
+                      <span className="font-bold text-slate-900">
+                        {u.fullName}
+                      </span>
                     </div>
                   </td>
                   <td className="px-5 py-3 text-slate-600">
                     <div>{u.email || "—"}</div>
-                    {u.phoneNumber && <div className="text-slate-400 text-[10px]">{u.phoneNumber}</div>}
+                    {u.phoneNumber && (
+                      <div className="text-slate-400 text-[10px]">
+                        {u.phoneNumber}
+                      </div>
+                    )}
                   </td>
                   <td className="px-5 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${ROLE_BADGE[u.role]}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${ROLE_BADGE[u.role]}`}
+                    >
                       {u.role}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-slate-500">{formatJoined(u.createdAt)}</td>
+                  <td className="px-5 py-3 text-slate-500">
+                    {formatJoined(u.createdAt)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -503,7 +590,9 @@ const BookingsTable: React.FC<{
   return (
     <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
       <div className="p-5 border-b border-slate-100">
-        <h3 className="text-sm font-bold text-slate-900">All Bookings ({bookings.length})</h3>
+        <h3 className="text-sm font-bold text-slate-900">
+          All Bookings ({bookings.length})
+        </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
@@ -522,7 +611,10 @@ const BookingsTable: React.FC<{
               const buyer = usersById.get(b.buyerId);
               const seller = b.sellerId ? usersById.get(b.sellerId) : undefined;
               return (
-                <tr key={b.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+                <tr
+                  key={b.id}
+                  className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60"
+                >
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <img
@@ -530,19 +622,27 @@ const BookingsTable: React.FC<{
                         alt={b.assetSnapshot.title}
                         className="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0"
                       />
-                      <span className="font-bold text-slate-900 truncate max-w-[200px]">{b.assetSnapshot.title}</span>
+                      <span className="font-bold text-slate-900 truncate max-w-[200px]">
+                        {b.assetSnapshot.title}
+                      </span>
                     </div>
                   </td>
-                  <td className="px-5 py-3 text-slate-600 font-semibold">{buyer?.fullName || "Unknown Buyer"}</td>
+                  <td className="px-5 py-3 text-slate-600 font-semibold">
+                    {buyer?.fullName || "Unknown Buyer"}
+                  </td>
                   <td className="px-5 py-3 text-slate-600 font-semibold">
                     {seller?.fullName || b.assetSnapshot.ownerName}
                   </td>
                   <td className="px-5 py-3 text-slate-500">
                     {b.startDate} → {b.endDate}
                   </td>
-                  <td className="px-5 py-3 font-bold text-slate-800">RWF {b.totalPrice.toLocaleString()}</td>
+                  <td className="px-5 py-3 font-bold text-slate-800">
+                    RWF {b.totalPrice.toLocaleString()}
+                  </td>
                   <td className="px-5 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${BOOKING_STATUS_BADGE[b.status]}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize ${BOOKING_STATUS_BADGE[b.status]}`}
+                    >
                       {b.status}
                     </span>
                   </td>
@@ -571,7 +671,9 @@ const ConversationsPanel: React.FC<{
       return;
     }
     setMessagesError(null);
-    const unsubscribe = subscribeToMessages(selected.id, setMessages, (err) => setMessagesError(err.message));
+    const unsubscribe = subscribeToMessages(selected.id, setMessages, (err) =>
+      setMessagesError(err.message),
+    );
     return () => unsubscribe();
   }, [selected]);
 
@@ -599,8 +701,12 @@ const ConversationsPanel: React.FC<{
             <div className="text-xs font-bold text-slate-900 truncate">
               {c.buyerName} ↔ {c.sellerName}
             </div>
-            <div className="text-[11px] text-slate-400 truncate">{c.assetTitle}</div>
-            <div className="text-[11px] text-slate-500 truncate mt-1">{c.lastMessage || "No messages yet"}</div>
+            <div className="text-[11px] text-slate-400 truncate">
+              {c.assetTitle}
+            </div>
+            <div className="text-[11px] text-slate-500 truncate mt-1">
+              {c.lastMessage || "No messages yet"}
+            </div>
           </button>
         ))}
       </div>
@@ -609,7 +715,9 @@ const ConversationsPanel: React.FC<{
         {!selected ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center gap-2 text-slate-400 p-10">
             <MessageCircle className="w-8 h-8" />
-            <p className="text-xs font-semibold">Select a conversation to read the thread.</p>
+            <p className="text-xs font-semibold">
+              Select a conversation to read the thread.
+            </p>
           </div>
         ) : (
           <>
@@ -617,13 +725,17 @@ const ConversationsPanel: React.FC<{
               <div className="text-xs font-bold text-slate-900">
                 {selected.buyerName} ↔ {selected.sellerName}
               </div>
-              <div className="text-[11px] text-slate-400">Re: {selected.assetTitle}</div>
+              <div className="text-[11px] text-slate-400">
+                Re: {selected.assetTitle}
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
               {messagesError ? (
                 <ErrorBanner message={messagesError} />
               ) : messages.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center pt-6">No messages in this thread yet.</p>
+                <p className="text-xs text-slate-400 text-center pt-6">
+                  No messages in this thread yet.
+                </p>
               ) : (
                 messages.map((m) => (
                   <div
@@ -639,13 +751,16 @@ const ConversationsPanel: React.FC<{
                     >
                       {m.text}
                     </div>
-                    <span className="text-[9px] text-slate-400 mt-1 px-1">{m.senderName}</span>
+                    <span className="text-[9px] text-slate-400 mt-1 px-1">
+                      {m.senderName}
+                    </span>
                   </div>
                 ))
               )}
             </div>
             <div className="p-3 border-t border-slate-100 text-[10px] text-slate-400 text-center">
-              Read-only — admins can review conversations but don&apos;t send messages here.
+              Read-only — admins can review conversations but don&apos;t send
+              messages here.
             </div>
           </>
         )}
@@ -664,16 +779,21 @@ export const AdminDashboard: React.FC = () => {
   const [bookings, setBookings] = React.useState<Booking[]>([]);
   const [bookingsError, setBookingsError] = React.useState<string | null>(null);
   const [conversations, setConversations] = React.useState<Conversation[]>([]);
-  const [conversationsError, setConversationsError] = React.useState<string | null>(null);
+  const [conversationsError, setConversationsError] = React.useState<
+    string | null
+  >(null);
 
   const [activeTab, setActiveTab] = React.useState<Tab>("verification");
   const [assetsFilter, setAssetsFilter] = React.useState<AssetFilter>("all");
   const [moderatingId, setModeratingId] = React.useState<string | null>(null);
-  const [selectedConversation, setSelectedConversation] = React.useState<Conversation | null>(null);
+  const [selectedConversation, setSelectedConversation] =
+    React.useState<Conversation | null>(null);
   // The asset currently being rejected via the reason modal below — null
   // means the modal is closed. Reject is never a single click: an admin
   // must pick or write a reason first, so the seller always learns why.
-  const [rejectingAsset, setRejectingAsset] = React.useState<Asset | null>(null);
+  const [rejectingAsset, setRejectingAsset] = React.useState<Asset | null>(
+    null,
+  );
 
   React.useEffect(() => {
     const permissionMsg = (err: Error, collectionName: string) =>
@@ -682,11 +802,17 @@ export const AdminDashboard: React.FC = () => {
         : `Couldn't load ${collectionName} (${err.message}).`;
 
     const unsubscribers = [
-      subscribeToAllAssets(setAssets, (err) => setAssetsError(permissionMsg(err, "assets"))),
-      subscribeToAllUsers(setUsers, (err) => setUsersError(permissionMsg(err, "users"))),
-      subscribeToAllBookings(setBookings, (err) => setBookingsError(permissionMsg(err, "bookings"))),
+      subscribeToAllAssets(setAssets, (err) =>
+        setAssetsError(permissionMsg(err, "assets")),
+      ),
+      subscribeToAllUsers(setUsers, (err) =>
+        setUsersError(permissionMsg(err, "users")),
+      ),
+      subscribeToAllBookings(setBookings, (err) =>
+        setBookingsError(permissionMsg(err, "bookings")),
+      ),
       subscribeToAllConversations(setConversations, (err) =>
-        setConversationsError(permissionMsg(err, "conversations"))
+        setConversationsError(permissionMsg(err, "conversations")),
       ),
     ];
     return () => unsubscribers.forEach((unsub) => unsub());
@@ -698,17 +824,25 @@ export const AdminDashboard: React.FC = () => {
     return map;
   }, [users]);
 
-  const pendingAssets = React.useMemo(() => assets.filter((a) => a.status === "pending"), [assets]);
-  const approvedCount = React.useMemo(() => assets.filter((a) => (a.status || "approved") === "approved").length, [
-    assets,
-  ]);
+  const pendingAssets = React.useMemo(
+    () => assets.filter((a) => a.status === "pending"),
+    [assets],
+  );
+  const approvedCount = React.useMemo(
+    () => assets.filter((a) => (a.status || "approved") === "approved").length,
+    [assets],
+  );
 
   const filteredAssets = React.useMemo(() => {
     if (assetsFilter === "all") return assets;
     return assets.filter((a) => (a.status || "approved") === assetsFilter);
   }, [assets, assetsFilter]);
 
-  const handleModerate = async (assetId: string, status: "approved" | "rejected", rejectionReason?: string) => {
+  const handleModerate = async (
+    assetId: string,
+    status: "approved" | "rejected",
+    rejectionReason?: string,
+  ) => {
     setModeratingId(assetId);
     try {
       await updateAssetStatus(assetId, status, rejectionReason);
@@ -740,7 +874,7 @@ export const AdminDashboard: React.FC = () => {
       const u = usersById.get(sellerId);
       return u ? u.fullName : fallback;
     },
-    [usersById]
+    [usersById],
   );
 
   return (
@@ -752,10 +886,13 @@ export const AdminDashboard: React.FC = () => {
             <div className="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-5 h-5 text-white" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-black font-display">Assetify Admin Console</h1>
+            <h1 className="text-xl sm:text-2xl font-black font-display">
+              Assetify Admin Console
+            </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1.5 max-w-xl">
-            Review and verify new listings before they go live, and oversee every user, booking, and conversation on the platform.
+            Review and verify new listings before they go live, and oversee
+            every user, booking, and conversation on the platform.
           </p>
         </div>
         <button
@@ -769,10 +906,30 @@ export const AdminDashboard: React.FC = () => {
 
       {/* Metrics Row — real counts, not simulated figures */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Pending Review" value={pendingAssets.length} icon={Clock3} tone="amber" />
-        <MetricCard label="Live Listings" value={approvedCount} icon={Building2} tone="brand" />
-        <MetricCard label="Registered Users" value={users.length} icon={Users} tone="purple" />
-        <MetricCard label="Total Bookings" value={bookings.length} icon={Calendar} tone="emerald" />
+        <MetricCard
+          label="Pending Review"
+          value={pendingAssets.length}
+          icon={Clock3}
+          tone="amber"
+        />
+        <MetricCard
+          label="Live Listings"
+          value={approvedCount}
+          icon={Building2}
+          tone="brand"
+        />
+        <MetricCard
+          label="Registered Users"
+          value={users.length}
+          icon={Users}
+          tone="purple"
+        />
+        <MetricCard
+          label="Total Bookings"
+          value={bookings.length}
+          icon={Calendar}
+          tone="emerald"
+        />
       </div>
 
       {/* Tabs */}
@@ -780,13 +937,16 @@ export const AdminDashboard: React.FC = () => {
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
-          const badge = tab.id === "verification" ? pendingAssets.length : undefined;
+          const badge =
+            tab.id === "verification" ? pendingAssets.length : undefined;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                isActive ? "bg-brand-600 text-white shadow-sm" : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                isActive
+                  ? "bg-brand-600 text-white shadow-sm"
+                  : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -833,7 +993,11 @@ export const AdminDashboard: React.FC = () => {
       {activeTab === "users" && <UsersTable users={users} error={usersError} />}
 
       {activeTab === "bookings" && (
-        <BookingsTable bookings={bookings} error={bookingsError} usersById={usersById} />
+        <BookingsTable
+          bookings={bookings}
+          error={bookingsError}
+          usersById={usersById}
+        />
       )}
 
       {activeTab === "conversations" && (
